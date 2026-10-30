@@ -1,0 +1,61 @@
+# Publish application source, runtime assets and project documentation only.
+/*
+!/.gitattributes
+!/.gitignore
+!/README.md
+!/package.json
+!/package-lock.json
+!/tsconfig.json
+!/apps/
+!/shared/
+!/db/
+!/data/
+!/scripts/
+!/docs/
+
+# Public documentation is explicitly selected.
+/docs/*
+!/docs/getting-started.md
+!/docs/conversation-memory.md
+!/docs/agent-events.md
+!/docs/catalog-data.md
+!/docs/business-openapi.json
+
+# Local inspection and media-production utilities.
+/scripts/inspect-reference.mjs
+/scripts/prepare-catalog-images.py
+
+# Local state, dependencies, credentials and generated files.
+node_modules/
+dist/
+.local/
+.env
+.env.*
+!.env.example
+output/
+*.log
+__pycache__/
+*.pyc
+.DS_Store
+Thumbs.db
+*.pem
+*.key
+*.p12
+*.pfx
+*.dump
+*.backup
+*.sqlite
+*.sqlite3
+voice-preset*.json
+
+# Assistant-specific workspace instructions and private notes.
+[Aa][Gg][Ee][Nn][Tt].[Mm][Dd]
+[Aa][Gg][Ee][Nn][Tt][Ss].[Mm][Dd]
+[Cc][Ll][Aa][Uu][Dd][Ee].[Mm][Dd]
+[Gg][Ee][Mm][Ii][Nn][Ii].[Mm][Dd]
+.codex/
+.claude/
+.cursor/
+.cursorrules
+.agents/
+*.local.*

@@ -1,0 +1,224 @@
+@import "tailwindcss";
+@custom-variant dark (&:is(.dark *));
+@theme inline {
+  --color-background: var(--background);
+  --color-foreground: var(--foreground);
+  --color-card: var(--card);
+  --color-card-foreground: var(--card-foreground);
+  --color-popover: var(--popover);
+  --color-popover-foreground: var(--popover-foreground);
+  --color-primary: var(--primary);
+  --color-primary-foreground: var(--primary-foreground);
+  --color-secondary: var(--secondary);
+  --color-secondary-foreground: var(--secondary-foreground);
+  --color-muted: var(--muted);
+  --color-muted-foreground: var(--muted-foreground);
+  --color-accent: var(--accent);
+  --color-accent-foreground: var(--accent-foreground);
+  --color-destructive: var(--destructive);
+  --color-border: var(--border);
+  --color-input: var(--input);
+  --color-ring: var(--ring);
+  --radius-sm: calc(var(--radius) - 4px);
+  --radius-md: calc(var(--radius) - 2px);
+  --radius-lg: var(--radius);
+  --radius-xl: calc(var(--radius) + 4px);
+}
+:root {
+  --radius: 0.625rem;
+  --background: oklch(0.982 0.005 100);
+  --foreground: oklch(0.24 0.025 165);
+  --card: oklch(1 0 0);
+  --card-foreground: oklch(0.24 0.025 165);
+  --popover: oklch(1 0 0);
+  --popover-foreground: oklch(0.24 0.025 165);
+  --primary: oklch(0.508 0.118 165.612);
+  --primary-foreground: oklch(0.979 0.021 166.113);
+  --secondary: oklch(0.947 0.031 164);
+  --secondary-foreground: oklch(0.36 0.078 165);
+  --muted: oklch(0.956 0.009 125);
+  --muted-foreground: oklch(0.46 0.025 165);
+  --accent: oklch(0.934 0.041 164);
+  --accent-foreground: oklch(0.32 0.075 165);
+  --destructive: oklch(0.577 0.245 27.325);
+  --border: oklch(0.908 0.011 145);
+  --input: oklch(0.885 0.027 164);
+  --ring: oklch(0.596 0.145 163.225);
+  --brand-start: #047857;
+  --brand-end: #05805e;
+  --brand-deep: #064e3b;
+  --brand-ink: #073e32;
+  --brand-cream: #f5f2e8;
+  --brand-highlight: #dbefa3;
+  --status-attention-bg: #fff3d9;
+  --status-attention-text: #89520e;
+  --status-transit-bg: #e9f0fa;
+  --status-transit-text: #375a83;
+}
+/* Green brand surfaces keep using the same shadcn semantic component tokens. */
+.brand-sidebar,
+.brand-bar {
+  --background: var(--brand-start);
+  --foreground: #ffffff;
+  --primary: #ffffff;
+  --primary-foreground: var(--brand-deep);
+  --secondary: rgb(255 255 255 / 16%);
+  --secondary-foreground: #ffffff;
+  --muted-foreground: rgb(255 255 255 / 86%);
+  --accent: rgb(255 255 255 / 16%);
+  --accent-foreground: #ffffff;
+  --border: rgb(255 255 255 / 20%);
+  --ring: #a7f3d0;
+  color: var(--foreground);
+}
+.status-badge {
+  border-color: transparent;
+}
+.status-badge[data-tone="attention"] {
+  color: var(--status-attention-text);
+  background: var(--status-attention-bg);
+}
+.status-badge[data-tone="active"],
+.status-badge[data-tone="success"] {
+  color: var(--secondary-foreground);
+  background: var(--secondary);
+}
+.status-badge[data-tone="transit"] {
+  color: var(--status-transit-text);
+  background: var(--status-transit-bg);
+}
+.status-badge[data-tone="muted"] {
+  color: var(--muted-foreground);
+  background: var(--muted);
+}
+.order-detail-heading {
+  color: var(--brand-cream);
+  background: var(--brand-ink);
+  border-top: 3px solid var(--brand-highlight);
+}
+.order-detail-heading .status-badge {
+  color: var(--brand-highlight);
+  background: rgb(255 255 255 / 10%);
+  border-color: rgb(255 255 255 / 15%);
+}
+.order-list-card {
+  box-shadow: 0 3px 12px rgb(7 62 50 / 3%);
+}
+.shop-welcome {
+  color: var(--brand-cream);
+  background: var(--brand-ink);
+}
+.shop-welcome .season-tag {
+  color: var(--brand-ink);
+  background: var(--brand-highlight);
+}
+.shop-welcome-art {
+  background: var(--brand-cream);
+  transform: rotate(8deg);
+}
+.shop-composer {
+  border-color: color-mix(in oklch, var(--primary) 25%, var(--border));
+  box-shadow: 0 -3px 22px rgb(7 62 50 / 4%);
+}
+.business-result > [data-slot="card-header"] {
+  border-left: 3px solid var(--primary);
+  padding-block: 12px;
+}
+.business-result.border-0 > [data-slot="card-header"] {
+  border-left: 0;
+  padding-top: 0;
+}
+@media (max-width: 639px) {
+  .shop-sheet {
+    display: flex;
+    flex-direction: column;
+    overflow: hidden;
+    left: 0;
+    top: auto;
+    bottom: 0;
+    max-width: 100%;
+    transform: none;
+    translate: none;
+    border-radius: 1.5rem 1.5rem 0 0;
+    padding: 1.5rem 1.25rem max(1.25rem, env(safe-area-inset-bottom));
+  }
+  .shop-sheet [data-slot="dialog-header"] {
+    flex-shrink: 0;
+    text-align: left;
+    padding-right: 1.5rem;
+  }
+  .shop-sheet [data-slot="dialog-close"] {
+    display: flex;
+    width: 44px;
+    height: 44px;
+    align-items: center;
+    justify-content: center;
+    top: 12px;
+    right: 12px;
+  }
+  .shop-sheet [data-slot="dialog-footer"] button {
+    min-height: 44px;
+  }
+  .shop-sheet > form {
+    min-height: 0;
+    overflow-y: auto;
+    overscroll-behavior: contain;
+    padding-right: 2px;
+  }
+  .shop-sheet [data-slot="dialog-footer"] {
+    flex-shrink: 0;
+    flex-direction: row;
+    border-top: 1px solid var(--border);
+    padding-top: 12px;
+  }
+  .shop-sheet [data-slot="dialog-footer"] > button:first-child {
+    min-width: 80px;
+  }
+  .shop-sheet [data-slot="dialog-footer"] > button:last-child {
+    flex: 1;
+  }
+}
+.brand-sidebar {
+  background: linear-gradient(165deg, var(--brand-start), var(--brand-deep));
+}
+.brand-bar {
+  background: linear-gradient(110deg, var(--brand-start), var(--brand-end));
+}
+@layer base {
+  * {
+    @apply border-border outline-ring/50;
+  }
+  body {
+    @apply bg-background text-foreground;
+    font-family:
+      Inter, "Segoe UI", "Microsoft YaHei", "PingFang SC", sans-serif;
+    margin: 0;
+  }
+  button:not(:disabled),
+  [role="button"]:not([aria-disabled="true"]) {
+    cursor: pointer;
+  }
+  button:focus-visible,
+  a:focus-visible {
+    outline: 2px solid var(--ring);
+    outline-offset: 3px;
+  }
+}
+.conversation-text {
+  white-space: pre-wrap;
+  overflow-wrap: anywhere;
+  line-height: 1.85;
+}
+.scrollbar-thin {
+  scrollbar-width: thin;
+  scrollbar-color: var(--border) transparent;
+}
+@media (prefers-reduced-motion: reduce) {
+  *,
+  *::before,
+  *::after {
+    animation-duration: 0.01ms !important;
+    transition-duration: 0.01ms !important;
+    scroll-behavior: auto !important;
+  }
+}

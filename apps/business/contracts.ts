@@ -1,0 +1,92 @@
+import { Type, type TSchema } from "@sinclair/typebox";
+import type pg from "pg";
+import type { Identity } from "../../shared/security.ts";
+export type Cell = string | number | boolean | null;
+export type RowValue = Cell | Record<string, Cell>[];
+export interface Result {
+  title: string;
+  view: "products" | "table" | "detail" | "metrics";
+  referenceId?: string;
+  summary?: string;
+  columns: { key: string; label: string; format?: string }[];
+  rows: Record<string, RowValue>[];
+  details: { label: string; value: Cell }[];
+}
+export interface Context {
+  db: pg.PoolClient;
+  identity: Identity;
+  preview: boolean;
+}
+export interface Capability {
+  name: string;
+  module: string;
+  label: string;
+  description: string;
+  roles: Identity["role"][];
+  write: boolean;
+  input: TSchema;
+  execute: (args: any, ctx: Context) => Promise<Result>;
+}
+export const cell = Type.Union([
+  Type.String(),
+  Type.Number(),
+  Type.Boolean(),
+  Type.Null(),
+]);
+export const resultSchema = Type.Object(
+  {
+    title: Type.String(),
+    view: Type.Union(
+      ["products", "table", "detail", "metrics"].map((x) => Type.Literal(x)),
+    ),
+    referenceId: Type.Optional(Type.String()),
+    summary: Type.Optional(Type.String()),
+    columns: Type.Array(
+      Type.Object(
+        {
+          key: Type.String(),
+          label: Type.String(),
+          format: Type.Optional(Type.String()),
+        },
+        { additionalProperties: false },
+      ),
+    ),
+    rows: Type.Array(
+      Type.Record(
+        Type.String(),
+        Type.Union([cell, Type.Array(Type.Record(Type.String(), cell))]),
+      ),
+    ),
+    details: Type.Array(
+      Type.Object(
+        { label: Type.String(), value: cell },
+        { additionalProperties: false },
+      ),
+    ),
+  },
+  { additionalProperties: false },
+);
+export const id = Type.String({ minLength: 1, maxLength: 80 });
+export const text = (max = 120) =>
+  Type.String({ minLength: 1, maxLength: max });
+export const queryInput = Type.Object(
+  {
+    query: Type.Optional(Type.String({ maxLength: 80 })),
+    status: Type.Optional(Type.String({ maxLength: 20 })),
+    limit: Type.Optional(Type.Integer({ minimum: 1, maximum: 50 })),
+  },
+  { additionalProperties: false },
+);
+export const idInput = Type.Object({ id }, { additionalProperties: false });
+export const object = (properties: Record<string, TSchema>) =>
+  Type.Object(properties, { additionalProperties: false });
+export const noInput = object({});
+export function result(
+  title: string,
+  rows: Record<string, RowValue>[] = [],
+  columns: Result["columns"] = [],
+  extra: Partial<Result> = {},
+): Result {
+  return { title, view: "table", rows, columns, details: [], ...extra };
+}
+export const money = (cents: number) => `¥${(cents / 100).toFixed(2)}`;

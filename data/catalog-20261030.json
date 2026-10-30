@@ -1,0 +1,464 @@
+{
+  "batchId": "CATALOG-20261030",
+  "kind": "independent-teaching-demo-catalog",
+  "scope": "20 additional products, plus replacement photographs for existing 12 products",
+  "sizes": [
+    "S",
+    "M",
+    "L",
+    "XL"
+  ],
+  "imageStyle": "Use case: product-mockup. ONE premium photorealistic women's e-commerce garment photograph. Warm off-white seamless studio backdrop, soft diffused light from upper left, accurate neutral color, realistic fabric weave and seams. Vertical 4:5 frame, full garment front view centered, complete garment including hem and cuffs visible, about 78% frame fill with clean margins. Invisible mannequin / ghost mannequin styling with naturally filled shoulders and drape, no human body, no hanger, no text, no logo, no watermark, no collage, no props or accessories. Match an elegant consistent modern apparel catalog. Subject: ",
+  "newProducts": [
+    {
+      "id": "P013",
+      "name": "晨光百褶雪纺半裙",
+      "category": "半裙",
+      "description": "轻盈细百褶与中长裙长，松紧腰设计，适合春秋通勤和周末出行。带里衬。",
+      "material": "100% 聚酯纤维",
+      "season": "春秋",
+      "price": 19900,
+      "cost": 7600,
+      "supplierId": "S002",
+      "colors": [
+        "雾蓝色",
+        "奶油白"
+      ],
+      "subject": "a dusty powder blue women's midi pleated chiffon skirt, fine evenly spaced vertical accordion pleats, elasticated waistband, fully lined with no transparency, airy flowing mid-calf length, entire skirt and hem visible."
+    },
+    {
+      "id": "P014",
+      "name": "雾蓝高腰直筒半裙",
+      "category": "半裙",
+      "description": "高腰直筒轮廓，后中开衩与隐形拉链，适合办公室通勤。无弹面料，按尺码选择。",
+      "material": "66% 聚酯纤维 · 30% 粘纤 · 4% 氨纶",
+      "season": "四季",
+      "price": 26900,
+      "cost": 10300,
+      "supplierId": "S002",
+      "colors": [
+        "雾蓝色",
+        "藏青色"
+      ],
+      "subject": "a muted dusty blue women's high-waisted straight midi pencil skirt, smooth suiting fabric, clean waistband, subtle tailored seams, modest back vent not visible from front, full length skirt, elegant office style."
+    },
+    {
+      "id": "P015",
+      "name": "林间灯芯绒 A 字半裙",
+      "category": "半裙",
+      "description": "细条灯芯绒与 A 字轮廓，前片贴袋，膝下裙长，适合秋冬日常及休闲通勤。",
+      "material": "98% 棉 · 2% 氨纶",
+      "season": "秋冬",
+      "price": 23900,
+      "cost": 9200,
+      "supplierId": "S002",
+      "colors": [
+        "栗子棕",
+        "森林绿"
+      ],
+      "subject": "a chestnut brown women's A-line below-knee corduroy skirt, fine vertical corduroy ribs, two clean front patch pockets, waistband with belt loops and a single small button, no belt, warm autumn fabric."
+    },
+    {
+      "id": "P016",
+      "name": "细格纹羊毛混纺半裙",
+      "category": "半裙",
+      "description": "低对比细格纹，合体腰线与微 A 摆型，带里衬，适合秋冬通勤和叠穿。",
+      "material": "35% 羊毛 · 60% 聚酯纤维 · 5% 其他纤维",
+      "season": "秋冬",
+      "price": 32900,
+      "cost": 13600,
+      "supplierId": "S002",
+      "colors": [
+        "咖灰格",
+        "炭灰格"
+      ],
+      "subject": "a taupe and warm gray subtle micro-check wool-blend women's midi skirt, fitted waistband and gentle A-line, refined tiny plaid pattern, soft lightly brushed woven texture, lined, full hem visible."
+    },
+    {
+      "id": "P017",
+      "name": "月影针织收腰连衣裙",
+      "category": "连衣裙",
+      "description": "细罗纹针织与自然收腰线，圆领长袖，过膝裙长，适合秋冬通勤和日常聚会。",
+      "material": "52% 粘纤 · 28% 聚酯纤维 · 20% 锦纶",
+      "season": "秋冬",
+      "price": 39900,
+      "cost": 15800,
+      "supplierId": "S001",
+      "colors": [
+        "藏青色",
+        "暖米色"
+      ],
+      "subject": "a deep navy women's long-sleeve fine ribbed knit midi dress, modest round neckline, softly fitted natural waist and subtly flared skirt, elegant full-length garment front view, no belt, no buttons, realistic knit drape."
+    },
+    {
+      "id": "P018",
+      "name": "杏语衬衫式长袖连衣裙",
+      "category": "连衣裙",
+      "description": "小翻领与前开扣，腰间同色布带可调节，A 字中长裙摆，适合通勤和外出。",
+      "material": "55% 棉 · 45% 聚酯纤维",
+      "season": "春秋",
+      "price": 42900,
+      "cost": 17200,
+      "supplierId": "S002",
+      "colors": [
+        "米杏色",
+        "浅卡其"
+      ],
+      "subject": "a pale warm apricot beige women's long-sleeve midi shirt dress, small pointed collar, neat button front, matching fabric waist tie knotted softly at waist, gently flared A-line skirt, crisp soft cotton blend, complete garment."
+    },
+    {
+      "id": "P019",
+      "name": "轻盈碎花长袖连衣裙",
+      "category": "连衣裙",
+      "description": "小碎花印花与轻盈里衬，V 领长袖、自然腰线，适合春秋日常与周末出行。",
+      "material": "100% 聚酯纤维",
+      "season": "春秋",
+      "price": 29900,
+      "cost": 11600,
+      "supplierId": "S002",
+      "colors": [
+        "雾蓝碎花",
+        "奶油碎花"
+      ],
+      "subject": "a dusty blue women's long-sleeve midi dress with delicate tiny ivory floral print, modest V neckline, softly defined natural waist, airy lined chiffon A-line skirt, full garment complete hem, small tasteful floral pattern."
+    },
+    {
+      "id": "P020",
+      "name": "暖雾羊绒混纺圆领针织衫",
+      "category": "针织衫",
+      "description": "细密羊绒混纺针织，圆领与微宽松衣身，适合秋冬通勤和大衣内搭。",
+      "material": "10% 羊绒 · 45% 羊毛 · 45% 锦纶",
+      "season": "秋冬",
+      "price": 45900,
+      "cost": 20500,
+      "supplierId": "S001",
+      "colors": [
+        "暖杏色",
+        "浅灰色"
+      ],
+      "subject": "a warm light apricot women's fine-knit cashmere-and-wool blend crewneck sweater, soft delicate cashmere fuzz, slightly relaxed silhouette, long sleeves, refined narrow ribbed neckline cuffs and hem, luxurious understated texture."
+    },
+    {
+      "id": "P021",
+      "name": "海岸条纹棉质针织衫",
+      "category": "针织衫",
+      "description": "横向双色条纹，圆领落肩，棉质针织触感，适合春秋休闲及通勤叠穿。",
+      "material": "100% 棉",
+      "season": "春秋",
+      "price": 23900,
+      "cost": 8700,
+      "supplierId": "S001",
+      "colors": [
+        "白底藏青条",
+        "藏青底白条"
+      ],
+      "subject": "a women's ivory cotton-knit Breton stripe sweater, evenly spaced navy horizontal stripes, round neckline, dropped shoulders, full long sleeves, relaxed straight silhouette, classic fine cotton knit, no patches or logos."
+    },
+    {
+      "id": "P022",
+      "name": "细罗纹方领针织衫",
+      "category": "针织衫",
+      "description": "细罗纹弹力针织，方领与合体版型，适合搭配半裙或西裤。",
+      "material": "48% 粘纤 · 32% 棉 · 20% 锦纶",
+      "season": "春秋",
+      "price": 18900,
+      "cost": 6900,
+      "supplierId": "S001",
+      "colors": [
+        "拿铁色",
+        "墨黑色"
+      ],
+      "subject": "a latte beige women's fitted fine ribbed knit square-neck top, elegant modest square neckline, long sleeves, clean straight hem, vertical narrow ribs and soft stretchy fabric, complete garment, no buttons."
+    },
+    {
+      "id": "P023",
+      "name": "奶油双向拉链针织开衫",
+      "category": "针织衫",
+      "description": "立领与双向拉链，略短宽松衣身，适合春秋日常或外套内搭。",
+      "material": "60% 棉 · 40% 腈纶",
+      "season": "春秋",
+      "price": 32900,
+      "cost": 12800,
+      "supplierId": "S001",
+      "colors": [
+        "奶油白",
+        "鼠尾草绿"
+      ],
+      "subject": "a cream ivory women's chunky cotton-blend knit cardigan jacket, small stand collar, two-way silver zip fastened at center with two visible neat pulls, slightly cropped relaxed body, ribbed cuffs and hem, full long sleeves."
+    },
+    {
+      "id": "P024",
+      "name": "知性小飘带雪纺衬衫",
+      "category": "衬衫",
+      "description": "领口窄飘带与柔和垂褶，长袖微收口，带前片里衬，适合办公室通勤。",
+      "material": "100% 聚酯纤维",
+      "season": "春秋",
+      "price": 22900,
+      "cost": 8100,
+      "supplierId": "S002",
+      "colors": [
+        "雾粉色",
+        "米白色"
+      ],
+      "subject": "a muted dusty pink women's chiffon blouse, narrow softly tied bow at neck, long flowing sleeves with small gathered cuffs, gentle front drape, lined nontransparent front, elegant modern officewear, complete blouse."
+    },
+    {
+      "id": "P025",
+      "name": "清爽蓝白条纹棉衬衫",
+      "category": "衬衫",
+      "description": "细纵条纹棉布，经典翻领和宽松衣身，适合日常通勤，可搭配针织背心。",
+      "material": "100% 棉",
+      "season": "四季",
+      "price": 26900,
+      "cost": 10200,
+      "supplierId": "S002",
+      "colors": [
+        "蓝白条",
+        "灰白条"
+      ],
+      "subject": "a women's crisp cotton shirt with fine sky blue and white vertical stripes, classic pointed collar, neat white buttons, slightly relaxed straight body, long sleeves and button cuffs, curved shirttail hem, complete shirt."
+    },
+    {
+      "id": "P026",
+      "name": "轻绒磨毛宽松衬衫",
+      "category": "衬衫",
+      "description": "轻磨毛棉布，落肩与弧形下摆，正面单贴袋，适合秋冬休闲和叠穿。",
+      "material": "100% 棉",
+      "season": "秋冬",
+      "price": 24900,
+      "cost": 9400,
+      "supplierId": "S002",
+      "colors": [
+        "鼠尾草绿",
+        "燕麦白"
+      ],
+      "subject": "a muted sage green women's brushed cotton relaxed shirt, soft subtle flannel texture, dropped shoulders, one single chest patch pocket, pointed collar and small tonal buttons, long sleeves, curved hem, complete garment."
+    },
+    {
+      "id": "P027",
+      "name": "软弹九分锥形西裤",
+      "category": "裤装",
+      "description": "高腰九分锥形版型，后腰局部松紧与前片单褶，适合通勤，裤脚略收窄。",
+      "material": "63% 聚酯纤维 · 32% 粘纤 · 5% 氨纶",
+      "season": "四季",
+      "price": 27900,
+      "cost": 10300,
+      "supplierId": "S003",
+      "colors": [
+        "石米色",
+        "墨黑色"
+      ],
+      "subject": "a pair of stone beige women's high-waisted ankle-length tapered tailored trousers, neat single front pleats, slanted side pockets, subtly tapered leg openings, smooth stretch suiting fabric, both complete legs visible, no belt."
+    },
+    {
+      "id": "P028",
+      "name": "复古高腰阔腿牛仔裤",
+      "category": "裤装",
+      "description": "高腰阔腿与前后五袋，深蓝水洗棉质牛仔，适合日常外出和休闲通勤。",
+      "material": "100% 棉",
+      "season": "四季",
+      "price": 34900,
+      "cost": 13900,
+      "supplierId": "S003",
+      "colors": [
+        "靛蓝色",
+        "雾蓝色"
+      ],
+      "subject": "a pair of women's high-waisted wide-leg indigo denim jeans, authentic deep indigo cotton denim, clean wide full-length legs, five-pocket construction, copper rivets and ochre contrast stitching, no distressing, no belt."
+    },
+    {
+      "id": "P029",
+      "name": "肌理垂感阔腿裤",
+      "category": "裤装",
+      "description": "细肌理面料与宽松阔腿，后腰松紧、前片平整，适合通勤和长时间日常穿着。",
+      "material": "70% 聚酯纤维 · 27% 粘纤 · 3% 氨纶",
+      "season": "四季",
+      "price": 31900,
+      "cost": 12100,
+      "supplierId": "S003",
+      "colors": [
+        "摩卡色",
+        "炭灰色"
+      ],
+      "subject": "a pair of mocha brown women's drapey wide-leg full-length trousers, fine subtle textured suiting fabric, smooth flat front waistband, clean front crease and elegant fluid straight-wide legs, no belt, entire trousers visible."
+    },
+    {
+      "id": "P030",
+      "name": "轻量菱格绗缝棉外套",
+      "category": "外套",
+      "description": "轻量菱格绗缝、圆领短款，正面按扣与贴袋，适合秋冬日常及室内外叠穿。",
+      "material": "面料100% 锦纶 · 填充100% 聚酯纤维",
+      "season": "秋冬",
+      "price": 49900,
+      "cost": 21800,
+      "supplierId": "S003",
+      "colors": [
+        "鼠尾草绿",
+        "奶油白"
+      ],
+      "subject": "a sage green women's lightweight quilted short jacket, evenly stitched diamond quilting, round collarless neckline, tonal snap buttons, two front patch pockets, long sleeves, subtle matte nylon shell and softly padded structure."
+    },
+    {
+      "id": "P031",
+      "name": "通勤中长款双排扣风衣",
+      "category": "外套",
+      "description": "中长款双排扣与可调腰带，袖袢和肩袢设计，带里衬，适合春秋通勤。",
+      "material": "65% 棉 · 35% 聚酯纤维",
+      "season": "春秋",
+      "price": 69900,
+      "cost": 31200,
+      "supplierId": "S003",
+      "colors": [
+        "砂卡其",
+        "藏青色"
+      ],
+      "subject": "a sand khaki women's classic mid-length double-breasted trench coat, notched lapels, shoulder epaulettes, sleeve tabs, matching fabric waist belt loosely tied, refined cotton gabardine texture, full coat front view, complete sleeves and hem."
+    },
+    {
+      "id": "P032",
+      "name": "翻领人字纹羊毛大衣",
+      "category": "外套",
+      "description": "中长款翻领与单排扣，人字纹羊毛混纺，带里衬，适合秋冬通勤和外出。",
+      "material": "70% 羊毛 · 25% 聚酯纤维 · 5% 其他纤维",
+      "season": "秋冬",
+      "price": 119900,
+      "cost": 54800,
+      "supplierId": "S001",
+      "colors": [
+        "燕麦灰",
+        "巧克力色"
+      ],
+      "subject": "an oatmeal gray women's mid-length wool herringbone overcoat, clear small herringbone woven pattern, generous notched lapels, three single-breasted dark horn buttons, straight tailored silhouette, long sleeves and two discreet welt pockets, complete garment."
+    }
+  ],
+  "imageSubjects": [
+    {
+      "id": "P001",
+      "subject": "a single oatmeal ivory fine-knit wool-blend crewneck sweater, slightly dropped shoulders, long sleeves, ribbed collar cuffs and hem, subtle natural wool fibers, relaxed straight fit."
+    },
+    {
+      "id": "P002",
+      "subject": "a cream ivory wool-and-cotton V-neck cardigan, relaxed slightly cropped silhouette, full long sleeves, five pearlescent shell buttons, finely knitted texture, ribbed cuffs and hem."
+    },
+    {
+      "id": "P003",
+      "subject": "a pair of women's charcoal gray tailored straight-leg trousers, mid-high waist, pressed front creases, full length, belt loops and subtle slanted side pockets, fluid suiting fabric, both legs complete, no belt."
+    },
+    {
+      "id": "P004",
+      "subject": "a chestnut brown women's long-sleeve square-neck midi dress, fitted natural waist and A-line skirt, soft viscose fabric and subtle lining, entire skirt hem visible, no belt."
+    },
+    {
+      "id": "P005",
+      "subject": "a white women's pure cotton collared button-up shirt, relaxed straight body, classic pointed collar, long sleeves with button cuffs, curved shirttail hem, crisp fine cotton weave."
+    },
+    {
+      "id": "P006",
+      "subject": "an oatmeal camel women's short wool double-face coat, notched lapels, dropped shoulders, soft wool surface and two subtle front pockets, straight boxy silhouette, complete long sleeves, no belt."
+    },
+    {
+      "id": "P007",
+      "subject": "a dark coffee brown women's single-breasted tailored blazer, natural shoulders, notched lapels, one brown horn button, welt chest pocket and two flap pockets, smooth woollike suiting fabric, complete sleeves."
+    },
+    {
+      "id": "P008",
+      "subject": "a chocolate brown women's A-line midi skirt, clean waistband and softly flowing hem, fine drapey viscose-blend woven fabric, smooth unpleated front, subtle natural folds, entire hem visible."
+    },
+    {
+      "id": "P009",
+      "subject": "a light beige apricot women's fitted fine-knit base layer top, modest mock turtleneck half-height collar, long sleeves, smooth thin viscose cotton knit, narrow clean hem, no buttons."
+    },
+    {
+      "id": "P010",
+      "subject": "a pair of women's vintage medium-blue straight-leg denim jeans, mid-high waist, authentic subtly faded cotton denim, five-pocket construction and ochre stitching, clean hem, full length both legs, no distressing."
+    },
+    {
+      "id": "P011",
+      "subject": "a milk tea beige women's cable-knit sweater vest, V-neck, pronounced classic cable patterns on front, wide ribbed armholes and ribbed hem, slightly relaxed sleeveless silhouette."
+    },
+    {
+      "id": "P012",
+      "subject": "a champagne beige women's long-sleeve satin blouse, small pointed collar, tonal button front and button cuffs, restrained low luster fluid satin, straight relaxed silhouette, complete blouse."
+    },
+    {
+      "id": "P013",
+      "subject": "a dusty powder blue women's midi pleated chiffon skirt, fine evenly spaced vertical accordion pleats, elasticated waistband, fully lined with no transparency, airy flowing mid-calf length, entire skirt and hem visible."
+    },
+    {
+      "id": "P014",
+      "subject": "a muted dusty blue women's high-waisted straight midi pencil skirt, smooth suiting fabric, clean waistband, subtle tailored seams, modest back vent not visible from front, full length skirt, elegant office style."
+    },
+    {
+      "id": "P015",
+      "subject": "a chestnut brown women's A-line below-knee corduroy skirt, fine vertical corduroy ribs, two clean front patch pockets, waistband with belt loops and a single small button, no belt, warm autumn fabric."
+    },
+    {
+      "id": "P016",
+      "subject": "a taupe and warm gray subtle micro-check wool-blend women's midi skirt, fitted waistband and gentle A-line, refined tiny plaid pattern, soft lightly brushed woven texture, lined, full hem visible."
+    },
+    {
+      "id": "P017",
+      "subject": "a deep navy women's long-sleeve fine ribbed knit midi dress, modest round neckline, softly fitted natural waist and subtly flared skirt, elegant full-length garment front view, no belt, no buttons, realistic knit drape."
+    },
+    {
+      "id": "P018",
+      "subject": "a pale warm apricot beige women's long-sleeve midi shirt dress, small pointed collar, neat button front, matching fabric waist tie knotted softly at waist, gently flared A-line skirt, crisp soft cotton blend, complete garment."
+    },
+    {
+      "id": "P019",
+      "subject": "a dusty blue women's long-sleeve midi dress with delicate tiny ivory floral print, modest V neckline, softly defined natural waist, airy lined chiffon A-line skirt, full garment complete hem, small tasteful floral pattern."
+    },
+    {
+      "id": "P020",
+      "subject": "a warm light apricot women's fine-knit cashmere-and-wool blend crewneck sweater, soft delicate cashmere fuzz, slightly relaxed silhouette, long sleeves, refined narrow ribbed neckline cuffs and hem, luxurious understated texture."
+    },
+    {
+      "id": "P021",
+      "subject": "a women's ivory cotton-knit Breton stripe sweater, evenly spaced navy horizontal stripes, round neckline, dropped shoulders, full long sleeves, relaxed straight silhouette, classic fine cotton knit, no patches or logos."
+    },
+    {
+      "id": "P022",
+      "subject": "a latte beige women's fitted fine ribbed knit square-neck top, elegant modest square neckline, long sleeves, clean straight hem, vertical narrow ribs and soft stretchy fabric, complete garment, no buttons."
+    },
+    {
+      "id": "P023",
+      "subject": "a cream ivory women's chunky cotton-blend knit cardigan jacket, small stand collar, two-way silver zip fastened at center with two visible neat pulls, slightly cropped relaxed body, ribbed cuffs and hem, full long sleeves."
+    },
+    {
+      "id": "P024",
+      "subject": "a muted dusty pink women's chiffon blouse, narrow softly tied bow at neck, long flowing sleeves with small gathered cuffs, gentle front drape, lined nontransparent front, elegant modern officewear, complete blouse."
+    },
+    {
+      "id": "P025",
+      "subject": "a women's crisp cotton shirt with fine sky blue and white vertical stripes, classic pointed collar, neat white buttons, slightly relaxed straight body, long sleeves and button cuffs, curved shirttail hem, complete shirt."
+    },
+    {
+      "id": "P026",
+      "subject": "a muted sage green women's brushed cotton relaxed shirt, soft subtle flannel texture, dropped shoulders, one single chest patch pocket, pointed collar and small tonal buttons, long sleeves, curved hem, complete garment."
+    },
+    {
+      "id": "P027",
+      "subject": "a pair of stone beige women's high-waisted ankle-length tapered tailored trousers, neat single front pleats, slanted side pockets, subtly tapered leg openings, smooth stretch suiting fabric, both complete legs visible, no belt."
+    },
+    {
+      "id": "P028",
+      "subject": "a pair of women's high-waisted wide-leg indigo denim jeans, authentic deep indigo cotton denim, clean wide full-length legs, five-pocket construction, copper rivets and ochre contrast stitching, no distressing, no belt."
+    },
+    {
+      "id": "P029",
+      "subject": "a pair of mocha brown women's drapey wide-leg full-length trousers, fine subtle textured suiting fabric, smooth flat front waistband, clean front crease and elegant fluid straight-wide legs, no belt, entire trousers visible."
+    },
+    {
+      "id": "P030",
+      "subject": "a sage green women's lightweight quilted short jacket, evenly stitched diamond quilting, round collarless neckline, tonal snap buttons, two front patch pockets, long sleeves, subtle matte nylon shell and softly padded structure."
+    },
+    {
+      "id": "P031",
+      "subject": "a sand khaki women's classic mid-length double-breasted trench coat, notched lapels, shoulder epaulettes, sleeve tabs, matching fabric waist belt loosely tied, refined cotton gabardine texture, full coat front view, complete sleeves and hem."
+    },
+    {
+      "id": "P032",
+      "subject": "an oatmeal gray women's mid-length wool herringbone overcoat, clear small herringbone woven pattern, generous notched lapels, three single-breasted dark horn buttons, straight tailored silhouette, long sleeves and two discreet welt pockets, complete garment."
+    }
+  ]
+}

@@ -1,0 +1,52 @@
+{
+  "name": "qihe-commerce-agent",
+  "private": true,
+  "type": "module",
+  "version": "0.1.0",
+  "scripts": {
+    "dev": "tsx scripts/dev.ts",
+    "dev:business": "tsx watch apps/business/server.ts",
+    "dev:agent": "tsx watch apps/agent/server.ts",
+    "dev:web": "vite --config apps/web/vite.config.ts",
+    "check": "tsc --noEmit && vue-tsc --noEmit -p apps/web/tsconfig.json",
+    "build": "npm run check && vite build --config apps/web/vite.config.ts",
+    "db:init": "tsx scripts/init-db.ts",
+    "verify": "tsx scripts/verify.ts",
+    "verify:stream:unit": "tsx scripts/verify-stream-unit.ts",
+    "verify:stream": "tsx scripts/verify-event-stream.ts",
+    "db:migrate:memory": "tsx scripts/migrate-conversation-memory.ts",
+    "verify:memory:unit": "tsx scripts/verify-context-unit.ts",
+    "verify:memory:storage": "tsx scripts/verify-memory-storage.ts",
+    "verify:memory": "tsx scripts/verify-conversation-memory.ts",
+    "catalog:upgrade": "tsx scripts/upgrade-catalog.ts",
+    "verify:catalog": "tsx scripts/verify-catalog.ts"
+  },
+  "dependencies": {
+    "@fastify/cookie": "^11.0.2",
+    "@fastify/static": "^8.3.0",
+    "@fastify/swagger": "9.8.1",
+    "@sinclair/typebox": "0.34.52",
+    "@vueuse/core": "^14.4.0",
+    "class-variance-authority": "^0.7.1",
+    "clsx": "^2.1.1",
+    "fastify": "5.10.0",
+    "lucide-vue-next": "^0.468.0",
+    "pg": "8.16.3",
+    "reka-ui": "^2.10.4",
+    "tailwind-merge": "^3.6.0",
+    "vue": "^3.5.13",
+    "vue-router": "^4.5.0"
+  },
+  "devDependencies": {
+    "@tailwindcss/vite": "^4.0.0",
+    "@types/node": "^24.0.0",
+    "@types/pg": "8.15.5",
+    "@vitejs/plugin-vue": "^5.2.1",
+    "prettier": "^3.6.2",
+    "tailwindcss": "^4.0.0",
+    "tsx": "4.23.1",
+    "typescript": "5.9.3",
+    "vite": "^6.0.0",
+    "vue-tsc": "^2.2.0"
+  }
+}
