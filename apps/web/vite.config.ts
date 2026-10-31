@@ -8,9 +8,11 @@ export default defineConfig({
   resolve: { alias: { "@": fileURLToPath(new URL("./src", import.meta.url)) } },
   server: {
     host: "127.0.0.1",
-    port: 5180,
+    port: Number(process.env.QIHE_WEB_PORT || 5180),
     strictPort: true,
-    proxy: { "/api": "http://127.0.0.1:3180" },
+    proxy: {
+      "/api": `http://127.0.0.1:${process.env.QIHE_AGENT_PORT || 3180}`,
+    },
   },
   build: { outDir: "../../dist/web", emptyOutDir: true },
 });

@@ -26,5 +26,10 @@ export interface LocalConfig {
   internalSecret: string;
 }
 export function config(): LocalConfig {
-  return JSON.parse(readFileSync(resolve(".local/config.json"), "utf8"));
+  return JSON.parse(
+    readFileSync(
+      resolve(process.env.QIHE_CONFIG_PATH || ".local/config.json"),
+      "utf8",
+    ),
+  );
 }

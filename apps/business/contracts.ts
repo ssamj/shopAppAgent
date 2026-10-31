@@ -11,6 +11,12 @@ export interface Result {
   columns: { key: string; label: string; format?: string }[];
   rows: Record<string, RowValue>[];
   details: { label: string; value: Cell }[];
+  references?: {
+    id: string;
+    kind: string;
+    label: string;
+    relatedIds?: Record<string, string>;
+  }[];
 }
 export interface Context {
   db: pg.PoolClient;
@@ -40,6 +46,21 @@ export const resultSchema = Type.Object(
       ["products", "table", "detail", "metrics"].map((x) => Type.Literal(x)),
     ),
     referenceId: Type.Optional(Type.String()),
+    references: Type.Optional(
+      Type.Array(
+        Type.Object(
+          {
+            id: Type.String(),
+            kind: Type.String(),
+            label: Type.String(),
+            relatedIds: Type.Optional(
+              Type.Record(Type.String(), Type.String()),
+            ),
+          },
+          { additionalProperties: false },
+        ),
+      ),
+    ),
     summary: Type.Optional(Type.String()),
     columns: Type.Array(
       Type.Object(

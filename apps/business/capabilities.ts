@@ -740,16 +740,17 @@ add(
   admin,
   false,
   object({ ...queryInput.properties, lowOnly: Type.Optional(Type.Boolean()) }),
-  async (a, c) =>
-    result(
+  async (a, c) => {
+    const rows = (
+      await q(
+        c,
+        `SELECT s.id as "skuId",p.id as "productId",p.name,s.color,s.size,s.stock,s.reserved,s.stock-s.reserved as available,s.reorder_point as "reorderPoint",s.cost,p.supplier_id as "supplierId",v.name as supplier FROM business.skus s JOIN business.products p ON p.id=s.product_id JOIN business.suppliers v ON v.id=p.supplier_id WHERE (p.name ILIKE $1 OR s.id ILIKE $1) AND (NOT $2 OR s.stock-s.reserved<s.reorder_point) ORDER BY s.stock-s.reserved,s.id LIMIT $3`,
+        [`%${a.query || ""}%`, a.lowOnly || false, a.limit || 50],
+      )
+    ).rows;
+    return result(
       a.lowOnly ? "待补货规格" : "仓库库存",
-      (
-        await q(
-          c,
-          `SELECT s.id as "skuId",p.id as "productId",p.name,s.color,s.size,s.stock,s.reserved,s.stock-s.reserved as available,s.reorder_point as "reorderPoint",s.cost,p.supplier_id as "supplierId",v.name as supplier FROM business.skus s JOIN business.products p ON p.id=s.product_id JOIN business.suppliers v ON v.id=p.supplier_id WHERE (p.name ILIKE $1 OR s.id ILIKE $1) AND (NOT $2 OR s.stock-s.reserved<s.reorder_point) ORDER BY s.stock-s.reserved,s.id LIMIT $3`,
-          [`%${a.query || ""}%`, a.lowOnly || false, a.limit || 50],
-        )
-      ).rows,
+      rows,
       [
         { key: "name", label: "商品" },
         { key: "color", label: "颜色" },
@@ -760,7 +761,16 @@ add(
         { key: "reorderPoint", label: "安全库存" },
         { key: "supplier", label: "供应商" },
       ],
-    ),
+      {
+        references: rows.map((row) => ({
+          id: row.skuId,
+          kind: "SKU",
+          label: `${row.name} ${row.color} ${row.size}`,
+          relatedIds: { productId: row.productId, supplierId: row.supplierId },
+        })),
+      },
+    );
+  },
 );
 add(
   "inventory_movements",

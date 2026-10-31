@@ -59,6 +59,8 @@ data: {"id":"128","conversationId":"…","runId":"…","type":"analysis-summary"
 
 `run-completed` 表示本轮分析编排结束；若包含待确认卡，业务变更仍需用户确认。确认后的动作继续在原过程卡片更新。
 
+草稿修订成功后仍使用 `confirmation-required` 事件，关联新版 action ID。会话快照的 actions 包含 `revision`、`draft_id` 和 `supersedes_id`；前端显示旧版已替代、新版待确认。`revising` 与 `revision_failed` 均不可提交，失败不能展示成新版完成。界面在处理消息时暂停确认按钮，服务端独立检查运行与草稿状态，拒绝旧卡和并发的无效提交。
+
 ## 前端恢复与展示
 
 前端按会话和事件编号合并，按 `step` 更新分析节点，按 `toolId` / `actionId` 更新执行节点。连接断开采用 1–15 秒退避重连；45 秒未收到任何数据时重建连接，带上已收到的最后编号。切换对话或退出页面会主动关闭旧连接，旧会话的迟到结果不会写入当前页面。

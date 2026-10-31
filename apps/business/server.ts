@@ -202,7 +202,10 @@ for (const capability of capabilities) {
     },
   );
 }
-const address = await app.listen({ host: "127.0.0.1", port: 3181 });
+const address = await app.listen({
+  host: "127.0.0.1",
+  port: Number(process.env.QIHE_BUSINESS_PORT || 3181),
+});
 console.log(`Business ready: ${address}`);
 for (const signal of ["SIGINT", "SIGTERM"] as const)
   process.on(signal, async () => {

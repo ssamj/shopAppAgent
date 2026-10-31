@@ -8,40 +8,8 @@ import { buildContext, boundContext, compactResult } from "./context.ts";
 import { assertEvidence, type ToolEvidence } from "./evidence.ts";
 import { progress } from "./events.ts";
 import type { ProgressInput } from "../../shared/events.ts";
-export async function prepare(
-  pool: pg.Pool,
-  conversationId: string,
-  identity: Identity,
-  name: string,
-  args: any,
-) {
-  const cap = await findCapability(name, identity);
-  if (!cap.write)
-    throw new BusinessError("READ_ONLY_CAPABILITY", "查询能力不需要确认");
-  const preview = await invoke(name, args, identity, "preview");
-  const id = randomUUID();
-  await pool.query(
-    "INSERT INTO agent.actions(id,conversation_id,account_id,capability,arguments,preview) VALUES($1,$2,$3,$4,$5,$6)",
-    [
-      id,
-      conversationId,
-      identity.id,
-      name,
-      JSON.stringify(args),
-      JSON.stringify(preview),
-    ],
-  );
-  await pool.query(
-    "UPDATE agent.conversations SET title=CASE WHEN title='新的对话' THEN $1 ELSE title END,updated_at=now() WHERE id=$2",
-    [cap.label, conversationId],
-  );
-  return {
-    id,
-    capability: name,
-    label: cap.label,
-    preview,
-  };
-}
+import { prepare } from "./actions.ts";
+export { prepare } from "./actions.ts";
 export async function run(
   pool: pg.Pool,
   runId: string,
@@ -148,6 +116,8 @@ export async function run(
       });
       for (const call of decision.calls) {
         const cap = await findCapability(call.name, identity);
+        if (call.revision && !cap.write)
+          throw new BusinessError("INVALID_PLAN", "只有待确认写操作可以修订");
         const toolId = randomUUID(),
           started = Date.now();
         await pool.query(
@@ -171,12 +141,17 @@ export async function run(
               identity,
               call.name,
               call.arguments,
+              call.revision,
             );
             await pool.query(
               "UPDATE agent.tool_calls SET status='awaiting_confirmation',duration_ms=$1,result=$2 WHERE id=$3",
               [
                 Date.now() - started,
-                JSON.stringify({ actionId: action.id }),
+                JSON.stringify({
+                  actionId: action.id,
+                  revision: action.revision,
+                  supersedesId: action.supersedesId,
+                }),
                 toolId,
               ],
             );
@@ -186,11 +161,15 @@ export async function run(
               actionId: action.id,
               step: step + 1,
               title: `${cap.label} · 等待确认`,
-              detail: "已生成确认卡。核对并确认后才会更新业务记录。",
+              detail: action.supersedesId
+                ? `已生成第 ${action.revision} 版确认卡，旧版已失效。确认后才会更新业务记录。`
+                : "已生成确认卡。核对并确认后才会更新业务记录。",
               durationMs: Date.now() - started,
             });
             await finish(
-              `已为你准备好「${cap.label}」，请核对下方信息后确认。`,
+              action.supersedesId
+                ? `已更新「${cap.label}」为第 ${action.revision} 版，旧版已失效。请核对新的数量和金额后确认。`
+                : `已为你准备好「${cap.label}」，请核对下方信息后确认。`,
             );
             return;
           }

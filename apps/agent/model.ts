@@ -1,11 +1,16 @@
 import { config } from "../../shared/config.ts";
 import { BusinessError } from "../../shared/db.ts";
 import { readSSE } from "../../shared/sse.ts";
+import type { DraftRevision } from "./actions.ts";
 export interface Decision {
   analysisSummary?: string;
   needsClarification?: boolean;
   message: string;
-  calls: { name: string; arguments: Record<string, unknown> }[];
+  calls: {
+    name: string;
+    arguments: Record<string, unknown>;
+    revision?: DraftRevision;
+  }[];
 }
 export async function decide(
   messages: { role: string; content: string }[],
@@ -221,7 +226,20 @@ export function parseDecision(
         typeof c.name !== "string" ||
         !c.arguments ||
         typeof c.arguments !== "object" ||
-        Array.isArray(c.arguments),
+        Array.isArray(c.arguments) ||
+        (c.revision !== undefined &&
+          (!c.revision ||
+            typeof c.revision !== "object" ||
+            Array.isArray(c.revision) ||
+            typeof c.revision.actionId !== "string" ||
+            !/^[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}$/i.test(
+              c.revision.actionId,
+            ) ||
+            !Number.isInteger(c.revision.version) ||
+            c.revision.version < 1 ||
+            Object.keys(c.revision).some(
+              (key) => !["actionId", "version"].includes(key),
+            ))),
     )
   ) {
     console.error(

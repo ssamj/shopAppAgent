@@ -7,7 +7,7 @@ let registry: Definition[] = [];
 export async function definitions() {
   if (!registry.length) {
     const response = await fetch(
-      "http://127.0.0.1:3181/internal/capabilities",
+      `http://127.0.0.1:${process.env.QIHE_BUSINESS_PORT || 3181}/internal/capabilities`,
       {
         headers: { "x-service-key": config().internalSecret },
         signal: AbortSignal.timeout(10000),
@@ -43,7 +43,7 @@ export async function invoke(
   let response: Response;
   try {
     response = await fetch(
-      `http://127.0.0.1:3181/v1/${cap.module}/${cap.name}`,
+      `http://127.0.0.1:${process.env.QIHE_BUSINESS_PORT || 3181}/v1/${cap.module}/${cap.name}`,
       {
         method: "POST",
         headers: {

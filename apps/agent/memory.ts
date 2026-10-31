@@ -94,19 +94,30 @@ summary 仅概括用户表达的目标、约束与修正，结合旧摘要增量
 changes 只包含新用户消息明确表达的新增、修正或删除。每项必须引用新用户消息中的连续原文 quote 和其真实 sourceMessageId；不要抄旧事实作为新增。按新消息时间顺序输出。value=null 表示用户取消这一条件，未提到的字段保持不变。
 可用 key：category（品类，如裙）、occasion（用途，如上班）、maxPriceCents（预算上限，人民币分，整数）、excludedColors（排除颜色的完整新数组）、preferredColors（偏好颜色的完整新数组）、size（尺码）、material（面料要求）、recipient（选购对象）。除预算和颜色数组外，value 必须是字符串或 null。预算“300元”保存为30000。“不要黑色”只更新excludedColors；“可以黑色了”移除黑色；“颜色不限”清除两个颜色条件。不要从身高体重猜尺码。
 这些只是当前选购任务的条件，不能升级为用户的永久偏好。普通感谢、店铺知识问答或查询订单不清空选购条件。用户明确说忘掉之前需求、重新开始，或开始独立的新选购任务（如“这次给妈妈买，不按刚才的要求”），reset 填对应的 {sourceMessageId,quote}，清空旧事实后应用该消息及之后的新条件，并重写摘要；仅修改预算、颜色或品类不算重新开始。
-不把“第二款”“这件”抽取为品类或编造商品ID；它们由程序保存的商品卡引用处理。“有M码吗”只是在询问商品规格，不等于确认用户需要M码；“我需要M码”“只看M码”才更新size。`;
+不把“第二款”“这件”抽取为品类或编造商品ID；它们由程序保存的商品卡引用处理。“有M码吗”只是在询问商品规格，不等于确认用户需要M码；“我需要M码”“只看M码”才更新size。
+字段范围严格限于上面列出的八个 key。任务数量、供应商、草稿ID和版本等不属于选购 facts，不能新增 quantity、supplierId、actionId、revision 等 key，也不能塞进 size 或其他不相关字段。这些任务参数由独立草稿机制保存。只修改任务数量且没有修改这八类选购条件时，changes 为 []；summary 可以概括用户新的要求，不能声称草稿或业务已经修改成功。无论是否有 changes，都必须完整输出 summary、evidenceRequirements、reset 和 changes。`;
 
 export function applyMemoryPatch(
   previous: Memory,
   raw: unknown,
   messages: UserMessage[],
 ): Memory {
-  if (!Value.Check(patchSchema, raw))
+  if (!Value.Check(patchSchema, raw)) {
+    console.error(
+      JSON.stringify({
+        event: "memory_schema_error",
+        issues: [...Value.Errors(patchSchema, raw)].map((e) => ({
+          path: e.path,
+          message: e.message,
+        })),
+      }),
+    );
     throw new BusinessError(
       "MEMORY_RESULT_INVALID",
       "会话需求格式不完整，请重试",
       502,
     );
+  }
   const patch = raw as Static<typeof patchSchema>;
   const sources = new Map(
     messages.map((message, index) => [message.id, { ...message, index }]),

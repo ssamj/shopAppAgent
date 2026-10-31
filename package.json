@@ -19,7 +19,9 @@
     "verify:memory:storage": "tsx scripts/verify-memory-storage.ts",
     "verify:memory": "tsx scripts/verify-conversation-memory.ts",
     "catalog:upgrade": "tsx scripts/upgrade-catalog.ts",
-    "verify:catalog": "tsx scripts/verify-catalog.ts"
+    "verify:catalog": "tsx scripts/verify-catalog.ts",
+    "db:migrate:drafts": "tsx scripts/migrate-action-revisions.ts",
+    "verify:drafts": "tsx scripts/verify-action-revisions.ts"
   },
   "dependencies": {
     "@fastify/cookie": "^11.0.2",

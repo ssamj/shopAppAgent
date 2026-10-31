@@ -13,6 +13,7 @@ import {
 } from "../../shared/security.ts";
 import { definitions, findCapability, invoke } from "./business.ts";
 import { prepare, run } from "./runtime.ts";
+import { lockConversation } from "./actions.ts";
 import { loadMemory, loadReferences } from "./memory.ts";
 import { progress, subscribe, storedEvent } from "./events.ts";
 import type { ProgressEvent } from "../../shared/events.ts";
@@ -49,6 +50,9 @@ await pool.query(
 );
 await pool.query(
   "UPDATE agent.actions SET state='pending' WHERE state='executing'",
+);
+await pool.query(
+  "UPDATE agent.actions SET state='revision_failed' WHERE state='revising'",
 );
 const identities = new WeakMap<object, Identity>();
 const loginAttempts = new Map<string, { count: number; until: number }>();
@@ -241,7 +245,7 @@ app.get<{ Params: { id: string } }>(
         [req.params.id],
       ),
       pool.query(
-        "SELECT id,capability,preview,state,result,created_at,expires_at FROM agent.actions WHERE conversation_id=$1 ORDER BY created_at",
+        "SELECT id,capability,preview,state,result,created_at,expires_at,revision,draft_id,supersedes_id FROM agent.actions WHERE conversation_id=$1 ORDER BY created_at",
         [req.params.id],
       ),
       pool.query(
@@ -406,6 +410,17 @@ app.post<{ Params: { id: string }; Body: { message: string } }>(
     ).rows[0];
     const runId = randomUUID();
     await transaction(pool, async (db) => {
+      await lockConversation(db, conversation.id);
+      const committing = await db.query(
+        "SELECT 1 FROM agent.actions WHERE conversation_id=$1 AND state IN ('executing','revising') LIMIT 1",
+        [conversation.id],
+      );
+      if (committing.rowCount)
+        throw new BusinessError(
+          "ACTION_BUSY",
+          "当前操作正在提交或修改，请稍候",
+          409,
+        );
       await db.query(
         "INSERT INTO agent.runs(id,conversation_id,status,prompt_version,model) VALUES($1,$2,'running',$3,$4)",
         [runId, conversation.id, prompt.version, config().model.model],
@@ -526,10 +541,23 @@ app.post<{ Params: { id: string } }>(
         409,
       );
     }
-    const claim = await pool.query(
-      "UPDATE agent.actions SET state='executing' WHERE id=$1 AND state='pending' RETURNING id",
-      [action.id],
-    );
+    const claim = await transaction(pool, async (db) => {
+      await lockConversation(db, action.conversation_id);
+      const running = await db.query(
+        "SELECT 1 FROM agent.runs WHERE conversation_id=$1 AND status='running'",
+        [action.conversation_id],
+      );
+      if (running.rowCount)
+        throw new BusinessError(
+          "ACTION_BUSY",
+          "正在处理本次消息，请等待草稿更新后确认",
+          409,
+        );
+      return db.query(
+        "UPDATE agent.actions SET state='executing' WHERE id=$1 AND state='pending' RETURNING id",
+        [action.id],
+      );
+    });
     if (!claim.rowCount)
       throw new BusinessError("ACTION_BUSY", "操作正在提交，请稍候", 409);
     try {
@@ -601,7 +629,7 @@ app.post<{ Params: { id: string } }>(
   { schema: { params: object({ id: idSchema }) } },
   async (req) => {
     const r = await pool.query(
-      "UPDATE agent.actions SET state='cancelled' WHERE id=$1 AND account_id=$2 AND state='pending' RETURNING id,conversation_id",
+      "UPDATE agent.actions SET state='cancelled' WHERE id=$1 AND account_id=$2 AND state IN ('pending','revision_failed') RETURNING id,conversation_id",
       [req.params.id, who(req).id],
     );
     if (!r.rowCount)
@@ -669,7 +697,10 @@ app.put<{ Body: { role: string; content: string; version: number } }>(
     return r.rows[0];
   },
 );
-const address = await app.listen({ host: "127.0.0.1", port: 3180 });
+const address = await app.listen({
+  host: "127.0.0.1",
+  port: Number(process.env.QIHE_AGENT_PORT || 3180),
+});
 console.log(`Agent ready: ${address}`);
 for (const signal of ["SIGINT", "SIGTERM"] as const)
   process.on(signal, async () => {

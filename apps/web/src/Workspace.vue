@@ -109,8 +109,20 @@ let snapshotRequest = 0;
 let scope = 0;
 let disposed = false;
 const pending = computed(() =>
-  actions.value.filter((a) => a.state === "pending" || a.state === "executing"),
+  actions.value.filter((a) =>
+    ["pending", "executing", "revising", "revision_failed"].includes(a.state),
+  ),
 );
+const superseded = computed(() =>
+  actions.value.filter((a) => a.state === "superseded"),
+);
+const draftStateLabel = (state: string) =>
+  ({
+    pending: "待确认",
+    executing: "提交中",
+    revising: "修改中",
+    revision_failed: "修改未完成",
+  })[state] || state;
 const pendingReplyRun = computed(() =>
   runs.value.find(
     (run) =>
@@ -1224,6 +1236,23 @@ onUnmounted(() => {
                     :connection="streamState"
                   />
                 </template>
+                <details
+                  v-for="action in superseded"
+                  :key="action.id"
+                  :data-superseded-id="action.id"
+                  class="rounded-xl border border-border bg-muted/30 p-3 text-sm text-muted-foreground"
+                >
+                  <summary class="cursor-pointer">
+                    第 {{ action.revision }} 版已被替代，不可提交 · 查看旧版
+                  </summary>
+                  <div class="mt-3">
+                    <ResultCard
+                      :card="action.preview"
+                      :channel="channel"
+                      compact
+                    />
+                  </div>
+                </details>
                 <div
                   v-for="action in pending"
                   :key="action.id"
@@ -1232,9 +1261,10 @@ onUnmounted(() => {
                 >
                   <div class="flex items-center justify-between gap-3">
                     <span class="flex items-center gap-2 text-sm font-medium"
-                      ><ClipboardList class="size-4" />请确认这项操作</span
+                      ><ClipboardList class="size-4" />请核对这项操作 · 第
+                      {{ action.revision }} 版</span
                     ><Badge variant="secondary">{{
-                      action.state === "executing" ? "提交中" : "待确认"
+                      draftStateLabel(action.state)
                     }}</Badge>
                   </div>
                   <ResultCard
@@ -1243,16 +1273,30 @@ onUnmounted(() => {
                     compact
                   />
                   <p class="text-xs text-muted-foreground">
-                    确认后将更新对应业务记录。
+                    {{
+                      action.state === "revision_failed"
+                        ? "本次修改未完成，当前草稿不可提交。请重新提出修改，或取消草稿。"
+                        : action.state === "revising"
+                          ? "正在重新核对业务明细，旧版本暂不可提交。"
+                          : action.supersedes_id
+                            ? "旧版本已失效。请核对新版数量与金额，确认后才会更新业务记录。"
+                            : "确认后将更新对应业务记录。"
+                    }}
                   </p>
                   <div class="flex justify-end gap-2">
                     <Button
                       variant="outline"
-                      :disabled="operationBusy || action.state === 'executing'"
+                      :disabled="
+                        operationBusy ||
+                        busy ||
+                        !['pending', 'revision_failed'].includes(action.state)
+                      "
                       @click="confirmAction(action.id, true)"
                       >取消</Button
                     ><Button
-                      :disabled="operationBusy || action.state === 'executing'"
+                      :disabled="
+                        operationBusy || busy || action.state !== 'pending'
+                      "
                       @click="confirmAction(action.id)"
                       ><LoaderCircle
                         v-if="operationBusy || action.state === 'executing'"

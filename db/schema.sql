@@ -61,14 +61,14 @@ CREATE TABLE IF NOT EXISTS agent.tool_calls (
  id uuid PRIMARY KEY, run_id uuid NOT NULL REFERENCES agent.runs(id), capability text NOT NULL, label text NOT NULL, status text NOT NULL, arguments jsonb NOT NULL, result jsonb, duration_ms integer, created_at timestamptz NOT NULL DEFAULT now()
 );
 CREATE TABLE IF NOT EXISTS agent.actions (
- id uuid PRIMARY KEY, conversation_id uuid NOT NULL REFERENCES agent.conversations(id), account_id text NOT NULL REFERENCES agent.accounts(id), capability text NOT NULL, arguments jsonb NOT NULL, preview jsonb NOT NULL, state text NOT NULL DEFAULT 'pending' CHECK(state IN ('pending','executing','completed','cancelled','failed')), result jsonb, created_at timestamptz NOT NULL DEFAULT now(), expires_at timestamptz NOT NULL DEFAULT now()+interval '30 minutes'
+ id uuid PRIMARY KEY, conversation_id uuid NOT NULL REFERENCES agent.conversations(id), account_id text NOT NULL REFERENCES agent.accounts(id), capability text NOT NULL, arguments jsonb NOT NULL, preview jsonb NOT NULL, state text NOT NULL DEFAULT 'pending' CHECK(state IN ('pending','executing','completed','cancelled','failed','revising','revision_failed','superseded')), result jsonb, created_at timestamptz NOT NULL DEFAULT now(), expires_at timestamptz NOT NULL DEFAULT now()+interval '30 minutes'
 );
 CREATE TABLE IF NOT EXISTS agent.prompts (
  role text PRIMARY KEY CHECK(role IN ('customer','admin')), content text NOT NULL, version integer NOT NULL DEFAULT 1, updated_at timestamptz NOT NULL DEFAULT now()
 );
 CREATE INDEX IF NOT EXISTS messages_conversation ON agent.messages(conversation_id,created_at);
 ALTER TABLE agent.actions DROP CONSTRAINT IF EXISTS actions_state_check;
-ALTER TABLE agent.actions ADD CONSTRAINT actions_state_check CHECK(state IN ('pending','executing','completed','cancelled','failed'));
+ALTER TABLE agent.actions ADD CONSTRAINT actions_state_check CHECK(state IN ('pending','executing','completed','cancelled','failed','revising','revision_failed','superseded'));
 ALTER TABLE agent.messages ADD COLUMN IF NOT EXISTS run_id uuid REFERENCES agent.runs(id);
 CREATE TABLE IF NOT EXISTS agent.events (
  id bigserial PRIMARY KEY, conversation_id uuid NOT NULL REFERENCES agent.conversations(id), run_id uuid REFERENCES agent.runs(id), payload jsonb NOT NULL, created_at timestamptz NOT NULL DEFAULT now()
@@ -81,3 +81,13 @@ CREATE TABLE IF NOT EXISTS agent.conversation_memories (
 );
 ALTER TABLE agent.runs ADD COLUMN IF NOT EXISTS context_stats jsonb NOT NULL DEFAULT '[]';
 CREATE INDEX IF NOT EXISTS messages_conversation_order ON agent.messages(conversation_id,created_at,id);
+
+ALTER TABLE agent.actions ADD COLUMN IF NOT EXISTS draft_id uuid;
+UPDATE agent.actions SET draft_id=id WHERE draft_id IS NULL;
+ALTER TABLE agent.actions ALTER COLUMN draft_id SET NOT NULL;
+ALTER TABLE agent.actions ADD COLUMN IF NOT EXISTS revision integer NOT NULL DEFAULT 1 CHECK (revision > 0);
+ALTER TABLE agent.actions ADD COLUMN IF NOT EXISTS supersedes_id uuid REFERENCES agent.actions(id);
+CREATE UNIQUE INDEX IF NOT EXISTS action_draft_revision ON agent.actions(draft_id,revision);
+CREATE UNIQUE INDEX IF NOT EXISTS action_one_successor ON agent.actions(supersedes_id) WHERE supersedes_id IS NOT NULL;
+ALTER TABLE agent.actions DROP CONSTRAINT IF EXISTS actions_state_check;
+ALTER TABLE agent.actions ADD CONSTRAINT actions_state_check CHECK(state IN ('pending','executing','completed','cancelled','failed','revising','revision_failed','superseded'));
