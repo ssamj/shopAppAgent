@@ -1,8 +1,8 @@
 {
   "notice": "虚构教学补货规则。原文与结构化参数由资料维护者共同维护；检索和参数校验不构成自动语义证明。",
-  "id": "daily-replenishment-v1",
+  "id": "daily-replenishment-v1-1",
   "title": "日常补货规则",
-  "version": "1.0",
+  "version": "1.1",
   "file": "daily.md",
   "requiredSections": ["适用范围", "库存口径", "触发与目标", "排除与缺失", "审核边界"],
   "rule": {"eligibleStatus":"上架","inventoryBasis":"availablePlusIncoming","incomingStatus":"待到货","triggerBelow":5,"target":10,"output":"reviewOnly"}

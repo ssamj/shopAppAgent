@@ -12,6 +12,8 @@ export const taskPlanSchema = Type.Object(
         {
           id: Type.String({ pattern: "^[a-z][a-z0-9_-]{0,25}$" }),
           title: Type.String({ minLength: 1, maxLength: 60 }),
+          description: Type.Optional(Type.String({ minLength: 1, maxLength: 200 })),
+          expectedOutput: Type.Optional(Type.String({ minLength: 1, maxLength: 160 })),
           capability: Type.String({ minLength: 1, maxLength: 80 }),
           dependsOn: Type.Array(Type.String(), {
             maxItems: 6,

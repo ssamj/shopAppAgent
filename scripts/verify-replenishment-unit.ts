@@ -108,6 +108,14 @@ const proposal = {
 };
 test("unknown source rejected", () =>
   assert.throws(() => acceptPlan(proposal, tools, new Set()), /未取得/));
+test("business step descriptions preserved without advancing state", () => {
+  const described = { ...proposal, steps: proposal.steps.map(s => ({ ...s, description: "查询并核对本次业务依据", expectedOutput: "可供下一步引用的真实结果" })) };
+  const plan = acceptPlan(described, tools, new Set(["source"]));
+  assert.equal(plan.steps[0].description, described.steps[0].description);
+  assert.equal(plan.steps[0].expectedOutput, described.steps[0].expectedOutput);
+  assert.ok(plan.steps.every(s => s.status === "pending"));
+  assert.throws(() => acceptPlan({ ...described, steps: [{ ...described.steps[0], description: "x".repeat(201) }, described.steps[1]] }, tools, new Set(["source"])), /格式/);
+});
 test("forward or cyclic dependency rejected", () =>
   assert.throws(
     () =>
