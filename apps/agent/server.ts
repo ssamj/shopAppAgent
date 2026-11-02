@@ -241,7 +241,7 @@ app.get<{ Params: { id: string } }>(
     await owns(req.params.id, who(req));
     const [messages, actions, runs, calls, events] = await Promise.all([
       pool.query(
-        "SELECT id,role,content,cards,run_id,created_at FROM agent.messages WHERE conversation_id=$1 ORDER BY created_at,id",
+        "SELECT id,role,content,cards,to_jsonb(m)->'answer' AS answer,run_id,created_at FROM agent.messages m WHERE conversation_id=$1 ORDER BY created_at,id",
         [req.params.id],
       ),
       pool.query(

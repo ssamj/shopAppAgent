@@ -2,6 +2,7 @@ import type pg from "pg";
 import type { Identity } from "../../shared/security.ts";
 import { BusinessError } from "../../shared/db.ts";
 import { protocol } from "./prompts.ts";
+import { knowledgeProtocol } from "./knowledge-protocol.ts";
 import { loadReferences, updateMemory } from "./memory.ts";
 import type { Result } from "../business/contracts.ts";
 import type { EvidenceTool } from "./evidence.ts";
@@ -48,10 +49,17 @@ export function compactResult(result: Result, limit = 6500): string {
     rows: [...result.rows],
     returnedRows: result.rows.length,
     omittedRows: 0,
+    ...(result.sources
+      ? { sources: [...result.sources], omittedSources: 0 }
+      : {}),
   };
   while (JSON.stringify(copy).length > limit && copy.rows.length) {
     copy.rows.pop();
     copy.omittedRows++;
+  }
+  while (JSON.stringify(copy).length > limit && copy.sources?.length) {
+    copy.sources.pop();
+    copy.omittedSources!++;
   }
   if (JSON.stringify(copy).length > limit)
     return JSON.stringify({
@@ -157,6 +165,12 @@ export async function buildContext(
       };
     }),
   ];
+  if (toolbox.some((tool) => tool.evidenceKind === "knowledge"))
+    messages.splice(1, 0, {
+      role: "system",
+      pinned: true,
+      content: knowledgeProtocol,
+    });
   return {
     messages,
     memoryRevision: memory.revision,

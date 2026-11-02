@@ -17,6 +17,7 @@
 /docs/*
 !/docs/getting-started.md
 !/docs/conversation-memory.md
+!/docs/product-knowledge.md
 !/docs/agent-events.md
 !/docs/catalog-data.md
 !/docs/business-openapi.json

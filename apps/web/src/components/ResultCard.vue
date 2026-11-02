@@ -21,6 +21,7 @@ import { currency, type BusinessCard } from "@/lib/api";
 import StatusBadge from "@/components/StatusBadge.vue";
 import OrderList from "@/components/OrderList.vue";
 import OrderDetail from "@/components/OrderDetail.vue";
+import KnowledgeResults from "@/components/KnowledgeResults.vue";
 const props = defineProps<{
   card: BusinessCard;
   channel: string;
@@ -81,8 +82,12 @@ function actions(row: Record<string, any>) {
 }
 </script>
 <template>
+  <KnowledgeResults
+    v-if="card.view === 'knowledge'"
+    :sources="card.sources || []"
+  />
   <OrderDetail
-    v-if="card.capability === 'orders_detail'"
+    v-else-if="card.capability === 'orders_detail'"
     :card="card"
     :channel="channel"
   />

@@ -50,6 +50,7 @@ import {
 import { Tabs, TabsList, TabsTrigger, TabsContent } from "@/components/ui/tabs";
 import { Separator } from "@/components/ui/separator";
 import ResultCard from "@/components/ResultCard.vue";
+import SourcedAnswer from "@/components/SourcedAnswer.vue";
 import ExecutionTrace from "@/components/ExecutionTrace.vue";
 import ThinkingIndicator from "@/components/ThinkingIndicator.vue";
 import { streamProgress, type ProgressEvent } from "@/lib/events";
@@ -839,6 +840,7 @@ onUnmounted(() => {
         <Button
           v-for="c in conversations"
           :key="c.id"
+          :data-conversation-id="c.id"
           :variant="conversationId === c.id ? 'secondary' : 'ghost'"
           class="mb-1 h-9 w-full justify-start px-2.5 text-xs font-normal"
           :disabled="busy"
@@ -1199,8 +1201,11 @@ onUnmounted(() => {
                         time(message.created_at)
                       }}</span>
                     </div>
+                    <SourcedAnswer
+                      v-if="message.answer"
+                      :answer="message.answer" />
                     <p
-                      v-if="
+                      v-else-if="
                         !(
                           isShop &&
                           ['查询订单', '查看订单详情', '查询商品'].includes(
@@ -1457,6 +1462,7 @@ onUnmounted(() => {
         <Button
           v-for="c in conversations"
           :key="c.id"
+          :data-conversation-id="c.id"
           variant="ghost"
           class="w-full justify-start"
           :disabled="busy"

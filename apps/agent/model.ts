@@ -2,10 +2,16 @@ import { config } from "../../shared/config.ts";
 import { BusinessError } from "../../shared/db.ts";
 import { readSSE } from "../../shared/sse.ts";
 import type { DraftRevision } from "./actions.ts";
+import { Value } from "@sinclair/typebox/value";
+import {
+  answerBlocksSchema,
+  type AnswerBlock,
+} from "../../shared/knowledge.ts";
 export interface Decision {
   analysisSummary?: string;
   needsClarification?: boolean;
   message: string;
+  answerBlocks?: AnswerBlock[];
   calls: {
     name: string;
     arguments: Record<string, unknown>;
@@ -70,7 +76,14 @@ async function requestContent(
       }),
       signal: AbortSignal.timeout(90000),
     },
-  ).catch(() => {
+  ).catch((error) => {
+    console.error(
+      JSON.stringify({
+        event: "model_connection_error",
+        errorType: error?.name,
+        causeCode: error?.cause?.code,
+      }),
+    );
     throw new BusinessError(
       "MODEL_CONNECTION_FAILED",
       "智能助手连接超时，请稍后重试",
@@ -219,7 +232,11 @@ export function parseDecision(
       typeof parsed.needsClarification !== "boolean") ||
     !Array.isArray(parsed.calls) ||
     parsed.calls.length > 3 ||
-    (!parsed.calls.length && !parsed.message.trim()) ||
+    (!parsed.calls.length && !parsed.message.trim() && !parsed.answerBlocks) ||
+    (parsed.answerBlocks !== undefined &&
+      (!Value.Check(answerBlocksSchema, parsed.answerBlocks) ||
+        parsed.calls.length > 0 ||
+        parsed.message !== "")) ||
     parsed.calls.some(
       (c) =>
         !c ||

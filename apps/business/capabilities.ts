@@ -1,5 +1,7 @@
 import { Type } from "@sinclair/typebox";
 import { randomUUID } from "node:crypto";
+import { config } from "../../shared/config.ts";
+import { knowledgeCapability } from "./knowledge/search.ts";
 import { requireCondition as check } from "../../shared/db.ts";
 import {
   type Capability,
@@ -17,6 +19,7 @@ import {
 const both = ["customer", "admin"] as const;
 const admin = ["admin"] as const;
 const capabilities: Capability[] = [];
+if (config().knowledge?.enabled) capabilities.push(knowledgeCapability);
 function add(
   name: string,
   module: string,

@@ -27,6 +27,7 @@ export interface EvidenceTool {
   name: string;
   write: boolean;
   description?: string;
+  evidenceKind?: "knowledge";
 }
 export interface ToolEvidence {
   capability: string;

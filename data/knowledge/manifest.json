@@ -1,0 +1,13 @@
+{
+  "notice": "全部为虚构教学商品的示例资料，不代表真实供应商、品牌或实物洗标。价格、库存和订单状态不进入知识库。",
+  "documents": [
+    {"id":"care-p001","title":"云感羊毛圆领针织衫护理说明","version":"1.0","productIds":["P001"],"scope":"product","audience":"public","file":"p001.md"},
+    {"id":"care-p009","title":"轻暖半高领打底衫护理说明","version":"1.0","productIds":["P009"],"scope":"product","audience":"public","file":"p009.md"},
+    {"id":"care-p020","title":"暖雾羊绒混纺圆领针织衫护理说明","version":"1.0","productIds":["P020"],"scope":"product","audience":"public","file":"p020.md"},
+    {"id":"care-p021","title":"海岸条纹棉质针织衫护理说明","version":"1.0","productIds":["P021"],"scope":"product","audience":"public","file":"p021.md"},
+    {"id":"care-p023","title":"奶油双向拉链针织开衫护理说明","version":"1.0","productIds":["P023"],"scope":"product","audience":"public","file":"p023.md"},
+    {"id":"care-terms","title":"衣物护理术语说明","version":"1.0","productIds":[],"scope":"general","audience":"public","file":"terms.md"},
+    {"id":"care-storage","title":"出行收纳注意事项","version":"1.0","productIds":[],"scope":"general","audience":"public","file":"storage.md"},
+    {"id":"internal-review","title":"样例资料维护说明","version":"1.0","productIds":[],"scope":"general","audience":"admin","file":"internal.md"}
+  ]
+}

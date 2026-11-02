@@ -1,11 +1,17 @@
 import { Type, type TSchema } from "@sinclair/typebox";
 import type pg from "pg";
 import type { Identity } from "../../shared/security.ts";
+import { sourceSchema, type KnowledgeSource } from "../../shared/knowledge.ts";
 export type Cell = string | number | boolean | null;
 export type RowValue = Cell | Record<string, Cell>[];
 export interface Result {
   title: string;
-  view: "products" | "table" | "detail" | "metrics";
+  view: "products" | "table" | "detail" | "metrics" | "knowledge";
+  sources?: KnowledgeSource[];
+  knowledge?: {
+    indexVersion: string;
+    coverage: { productId: string; retrieved: number }[];
+  };
   referenceId?: string;
   summary?: string;
   columns: { key: string; label: string; format?: string }[];
@@ -22,6 +28,7 @@ export interface Context {
   db: pg.PoolClient;
   identity: Identity;
   preview: boolean;
+  prepared?: unknown;
 }
 export interface Capability {
   name: string;
@@ -31,6 +38,8 @@ export interface Capability {
   roles: Identity["role"][];
   write: boolean;
   input: TSchema;
+  evidenceKind?: "knowledge";
+  prepareRead?: (args: any) => Promise<unknown>;
   execute: (args: any, ctx: Context) => Promise<Result>;
 }
 export const cell = Type.Union([
@@ -43,7 +52,27 @@ export const resultSchema = Type.Object(
   {
     title: Type.String(),
     view: Type.Union(
-      ["products", "table", "detail", "metrics"].map((x) => Type.Literal(x)),
+      ["products", "table", "detail", "metrics", "knowledge"].map((x) =>
+        Type.Literal(x),
+      ),
+    ),
+    sources: Type.Optional(Type.Array(sourceSchema)),
+    knowledge: Type.Optional(
+      Type.Object(
+        {
+          indexVersion: Type.String(),
+          coverage: Type.Array(
+            Type.Object(
+              {
+                productId: Type.String(),
+                retrieved: Type.Integer({ minimum: 0 }),
+              },
+              { additionalProperties: false },
+            ),
+          ),
+        },
+        { additionalProperties: false },
+      ),
     ),
     referenceId: Type.Optional(Type.String()),
     references: Type.Optional(

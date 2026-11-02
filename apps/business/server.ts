@@ -54,7 +54,7 @@ app.get("/health", async () => {
   return { status: "ok", service: "business" };
 });
 app.get("/internal/capabilities", async () =>
-  capabilities.map(({ execute, ...definition }) => definition),
+  capabilities.map(({ execute, prepareRead, ...definition }) => definition),
 );
 app.get("/internal/openapi", async () => app.swagger());
 const identitySchema = Type.Object(
@@ -138,8 +138,13 @@ for (const capability of capabilities) {
         throw new BusinessError("INVALID_MODE", "执行方式与业务能力不符");
       if (mode === "commit" && (!commandId || !expectedPreviewHash))
         throw new BusinessError("CONFIRMATION_REQUIRED", "请先准备并确认操作");
+      // Expensive read preparation must not hold an open SQL transaction.
+      const prepared =
+        mode === "read" && capability.prepareRead
+          ? await capability.prepareRead(args)
+          : undefined;
       const data = await transaction(pool, async (db) => {
-        const context = { db, identity, preview: mode !== "commit" };
+        const context = { db, identity, preview: mode !== "commit", prepared };
         const requestDigest = fingerprint({
           name: capability.name,
           args,
