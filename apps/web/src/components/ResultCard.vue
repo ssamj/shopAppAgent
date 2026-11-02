@@ -22,6 +22,7 @@ import StatusBadge from "@/components/StatusBadge.vue";
 import OrderList from "@/components/OrderList.vue";
 import OrderDetail from "@/components/OrderDetail.vue";
 import KnowledgeResults from "@/components/KnowledgeResults.vue";
+import ReplenishmentCard from "@/components/ReplenishmentCard.vue";
 const props = defineProps<{
   card: BusinessCard;
   channel: string;
@@ -82,8 +83,9 @@ function actions(row: Record<string, any>) {
 }
 </script>
 <template>
+  <ReplenishmentCard v-if="card.view === 'replenishment'" :card="card" />
   <KnowledgeResults
-    v-if="card.view === 'knowledge'"
+    v-else-if="card.view === 'knowledge'"
     :sources="card.sources || []"
   />
   <OrderDetail

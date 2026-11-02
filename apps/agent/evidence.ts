@@ -28,6 +28,9 @@ export interface EvidenceTool {
   write: boolean;
   description?: string;
   evidenceKind?: "knowledge";
+  planRequired?: boolean;
+  completesPlan?: boolean;
+  referenceInputs?: string[];
 }
 export interface ToolEvidence {
   capability: string;

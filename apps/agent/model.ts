@@ -3,6 +3,7 @@ import { BusinessError } from "../../shared/db.ts";
 import { readSSE } from "../../shared/sse.ts";
 import type { DraftRevision } from "./actions.ts";
 import { Value } from "@sinclair/typebox/value";
+import { taskPlanSchema, type TaskPlan } from "../../shared/planning.ts";
 import {
   answerBlocksSchema,
   type AnswerBlock,
@@ -12,10 +13,12 @@ export interface Decision {
   needsClarification?: boolean;
   message: string;
   answerBlocks?: AnswerBlock[];
+  plan?: TaskPlan;
   calls: {
     name: string;
     arguments: Record<string, unknown>;
     revision?: DraftRevision;
+    stepId?: string;
   }[];
 }
 export async function decide(
@@ -231,6 +234,9 @@ export function parseDecision(
     (parsed.needsClarification !== undefined &&
       typeof parsed.needsClarification !== "boolean") ||
     !Array.isArray(parsed.calls) ||
+    (parsed.plan !== undefined &&
+      (!Value.Check(taskPlanSchema, parsed.plan) ||
+        parsed.calls.length !== 1)) ||
     parsed.calls.length > 3 ||
     (!parsed.calls.length && !parsed.message.trim() && !parsed.answerBlocks) ||
     (parsed.answerBlocks !== undefined &&
@@ -241,6 +247,7 @@ export function parseDecision(
       (c) =>
         !c ||
         typeof c.name !== "string" ||
+        (c.stepId !== undefined && typeof c.stepId !== "string") ||
         !c.arguments ||
         typeof c.arguments !== "object" ||
         Array.isArray(c.arguments) ||
@@ -266,11 +273,20 @@ export function parseDecision(
         summaryType: typeof parsed?.analysisSummary,
         callsArray: Array.isArray(parsed?.calls),
         callsCount: parsed?.calls?.length,
+        planErrors:
+          parsed?.plan === undefined
+            ? undefined
+            : [...Value.Errors(taskPlanSchema, parsed.plan)].map((e) => ({
+                path: e.path,
+                message: e.message,
+              })),
+        answerBlocksPresent: parsed?.answerBlocks !== undefined,
         invalidCalls: Array.isArray(parsed?.calls)
           ? parsed.calls.map((c) => ({
               nameType: typeof c?.name,
               argumentsType: typeof c?.arguments,
               argumentsArray: Array.isArray(c?.arguments),
+              stepIdType: typeof c?.stepId,
             }))
           : undefined,
       }),

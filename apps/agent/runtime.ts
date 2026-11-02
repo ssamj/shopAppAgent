@@ -11,6 +11,8 @@ import type { ProgressInput } from "../../shared/events.ts";
 import { prepare } from "./actions.ts";
 import { validateSourcedAnswer } from "./citations.ts";
 import type { KnowledgeSource, SourcedAnswer } from "../../shared/knowledge.ts";
+import type { TaskPlanState } from "../../shared/planning.ts";
+import { acceptPlan, beginPlanStep, assertPlanComplete } from "./planning.ts";
 export { prepare } from "./actions.ts";
 export async function run(
   pool: pg.Pool,
@@ -20,6 +22,8 @@ export async function run(
   prompt: { content: string; version: number },
 ) {
   const cards: any[] = [];
+  let plan: TaskPlanState | undefined;
+  const references = new Set<string>();
   const emit = (event: Omit<ProgressInput, "conversationId" | "runId">) =>
     progress(pool, { ...event, conversationId, runId });
   const runStarted = Date.now();
@@ -31,14 +35,29 @@ export async function run(
     });
     const toolbox = (await definitions())
       .filter((c) => c.roles.includes(identity.role))
-      .map(({ name, label, description, input, write, evidenceKind }) => ({
-        name,
-        label,
-        description,
-        input,
-        write,
-        evidenceKind,
-      }));
+      .map(
+        ({
+          name,
+          label,
+          description,
+          input,
+          write,
+          evidenceKind,
+          planRequired,
+          completesPlan,
+          referenceInputs,
+        }) => ({
+          name,
+          label,
+          description,
+          input,
+          write,
+          evidenceKind,
+          planRequired,
+          completesPlan,
+          referenceInputs,
+        }),
+      );
     const context = await buildContext(
       pool,
       conversationId,
@@ -88,6 +107,26 @@ export async function run(
         ],
       );
       const decision = await decide(bounded.messages, reportSummary);
+      if (decision.plan) {
+        if (plan)
+          throw new BusinessError(
+            "PLAN_ALREADY_EXISTS",
+            "本轮计划已经建立，不能静默替换",
+          );
+        plan = acceptPlan(
+          decision.plan,
+          toolbox,
+          new Set(visibleSources.keys()),
+        );
+        await emit({
+          type: "plan-updated",
+          title: plan.title,
+          detail: "已依据本轮规则建立任务计划。",
+          plan,
+        });
+      }
+      if (plan && decision.calls.length > 1)
+        throw new BusinessError("PLAN_INVALID", "一次只执行一个计划步骤");
       if (!decision.analysisSummary)
         await emit({
           type: "analysis-summary",
@@ -98,6 +137,7 @@ export async function run(
           durationMs: Date.now() - analysisStarted,
         });
       if (!decision.calls.length) {
+        assertPlanComplete(plan);
         if (!decision.needsClarification)
           assertEvidence(context.evidenceRequirements, evidence);
         const answer = validateSourcedAnswer(
@@ -135,6 +175,14 @@ export async function run(
           throw new BusinessError("INVALID_PLAN", "只有待确认写操作可以修订");
         const toolId = randomUUID(),
           started = Date.now();
+        const plannedStep = beginPlanStep(plan, call, cap, references, toolId);
+        if (plannedStep)
+          await emit({
+            type: "plan-updated",
+            title: plan!.title,
+            detail: `正在${plannedStep.title}`,
+            plan,
+          });
         await pool.query(
           "INSERT INTO agent.tool_calls(id,run_id,capability,label,status,arguments) VALUES($1,$2,$3,$4,'running',$5)",
           [toolId, runId, call.name, cap.label, JSON.stringify(call.arguments)],
@@ -194,6 +242,7 @@ export async function run(
             identity,
             "read",
           );
+          if (result.referenceId) references.add(result.referenceId);
           if (cap.evidenceKind === "knowledge") {
             queriedKnowledge = true;
             if (!result.sources)
@@ -214,6 +263,15 @@ export async function run(
               : result.rows.length === 0 && result.details.length === 0,
           });
           cards.push({ ...result, capability: call.name });
+          if (plannedStep) {
+            plannedStep.status = "completed";
+            await emit({
+              type: "plan-updated",
+              title: plan!.title,
+              detail: `已完成${plannedStep.title}`,
+              plan,
+            });
+          }
           await pool.query(
             "UPDATE agent.tool_calls SET status='succeeded',duration_ms=$1,result=$2 WHERE id=$3",
             [
@@ -221,6 +279,9 @@ export async function run(
               JSON.stringify({
                 title: result.title,
                 count: result.rows.length,
+                ...(result.referenceId
+                  ? { referenceId: result.referenceId }
+                  : {}),
                 ...(result.sources
                   ? {
                       sources: result.sources,
@@ -286,6 +347,16 @@ export async function run(
     );
   } catch (e) {
     const error = e as BusinessError;
+    if (plan) {
+      for (const step of plan.steps)
+        if (step.status === "running") step.status = "failed";
+      await emit({
+        type: "plan-updated",
+        title: plan.title,
+        detail: "任务停止，未完成步骤保留。",
+        plan,
+      });
+    }
     await pool.query(
       "UPDATE agent.runs SET status='failed',error_code=$1,finished_at=now() WHERE id=$2",
       [error.code || "INTERNAL_ERROR", runId],

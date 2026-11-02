@@ -27,7 +27,11 @@
     "knowledge:index": "tsx scripts/index-product-knowledge.ts",
     "verify:knowledge:unit": "tsx scripts/verify-knowledge-unit.ts",
     "verify:knowledge:storage": "tsx scripts/verify-knowledge-storage.ts",
-    "verify:knowledge:runtime": "tsx scripts/verify-knowledge-runtime.ts"
+    "verify:knowledge:runtime": "tsx scripts/verify-knowledge-runtime.ts",
+    "db:migrate:replenishment": "tsx scripts/migrate-replenishment.ts",
+    "replenishment:index": "tsx scripts/index-replenishment.ts",
+    "verify:replenishment:unit": "tsx scripts/verify-replenishment-unit.ts",
+    "verify:replenishment:storage": "tsx scripts/verify-replenishment-storage.ts"
   },
   "dependencies": {
     "@fastify/cookie": "^11.0.2",

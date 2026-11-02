@@ -3,6 +3,7 @@ import type { Identity } from "../../shared/security.ts";
 import { BusinessError } from "../../shared/db.ts";
 import { protocol } from "./prompts.ts";
 import { knowledgeProtocol } from "./knowledge-protocol.ts";
+import { planningProtocol } from "./planning.ts";
 import { loadReferences, updateMemory } from "./memory.ts";
 import type { Result } from "../business/contracts.ts";
 import type { EvidenceTool } from "./evidence.ts";
@@ -46,6 +47,15 @@ export function boundContext(
 export function compactResult(result: Result, limit = 6500): string {
   const copy = {
     ...result,
+    ...(result.replenishment
+      ? {
+          replenishment: {
+            ...result.replenishment,
+            audit: [],
+            omittedAuditRows: result.replenishment.audit.length,
+          },
+        }
+      : {}),
     rows: [...result.rows],
     returnedRows: result.rows.length,
     omittedRows: 0,
@@ -170,6 +180,12 @@ export async function buildContext(
       role: "system",
       pinned: true,
       content: knowledgeProtocol,
+    });
+  if (toolbox.some((tool) => tool.planRequired))
+    messages.splice(1, 0, {
+      role: "system",
+      pinned: true,
+      content: planningProtocol,
     });
   return {
     messages,

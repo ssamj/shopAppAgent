@@ -1,4 +1,5 @@
 export type ProgressType =
+  | "plan-updated"
   | "run-started"
   | "analysis-started"
   | "analysis-summary"
@@ -26,5 +27,6 @@ export interface ProgressEvent {
   durationMs?: number;
   count?: number;
   streaming?: boolean;
+  plan?: import("./planning.ts").TaskPlanState;
 }
 export type ProgressInput = Omit<ProgressEvent, "id" | "occurredAt">;

@@ -24,6 +24,7 @@ export interface LocalConfig {
   };
   model: { baseUrl: string; model: string; apiKey: string };
   knowledge?: { enabled: boolean };
+  replenishment?: { enabled: boolean };
   internalSecret: string;
 }
 export function config(): LocalConfig {

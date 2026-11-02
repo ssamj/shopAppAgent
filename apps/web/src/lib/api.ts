@@ -33,6 +33,7 @@ export function time(value: string) {
   }).format(new Date(value));
 }
 export interface BusinessCard {
+  replenishment?: import("../../../../shared/replenishment").ReplenishmentReport;
   sources?: import("../../../../shared/knowledge").KnowledgeSource[];
   title: string;
   view: string;

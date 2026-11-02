@@ -26,6 +26,10 @@ const terminal = computed(() =>
     .find((e) => e.type === "run-completed" || e.type === "run-failed"),
 );
 const active = computed(() => Boolean(props.running) && !terminal.value);
+const taskPlan = computed(
+  () =>
+    [...props.events].reverse().find((e) => e.type === "plan-updated")?.plan,
+);
 watch(active, (running) => {
   expanded.value = running;
 });
@@ -37,6 +41,7 @@ const steps = computed(() => {
   for (const event of props.events) {
     if (
       event.type === "run-started" ||
+      event.type === "plan-updated" ||
       event.type === "run-completed" ||
       event.type === "run-failed"
     )
@@ -90,6 +95,49 @@ watch(
 
 <template>
   <section class="mb-2 min-w-0" aria-label="业务助手回复">
+    <section
+      v-if="taskPlan"
+      class="mb-3 rounded-xl border bg-primary/5 p-4"
+      aria-label="任务计划"
+      data-task-plan
+    >
+      <p class="text-xs text-muted-foreground">Plan → Execute</p>
+      <h3 class="mt-1 text-sm font-semibold">{{ taskPlan.title }}</h3>
+      <ol class="mt-3 space-y-2">
+        <li
+          v-for="(item, i) in taskPlan.steps"
+          :key="item.id"
+          class="flex items-center gap-2 text-sm"
+        >
+          <Check
+            v-if="item.status === 'completed'"
+            class="size-4 shrink-0 text-primary"
+          />
+          <LoaderCircle
+            v-else-if="item.status === 'running'"
+            class="size-4 shrink-0 animate-spin text-primary"
+          />
+          <CircleAlert
+            v-else-if="item.status === 'failed'"
+            class="size-4 shrink-0 text-destructive"
+          />
+          <span
+            v-else
+            class="flex size-4 shrink-0 items-center justify-center text-xs text-muted-foreground"
+            >{{ i + 1 }}</span
+          >
+          <span class="flex-1">{{ item.title }}</span
+          ><span class="shrink-0 text-xs text-muted-foreground">{{
+            {
+              pending: "待执行",
+              running: "执行中",
+              completed: "已完成",
+              failed: "失败",
+            }[item.status]
+          }}</span>
+        </li>
+      </ol>
+    </section>
     <div class="flex min-h-8 flex-wrap items-center gap-2">
       <span
         class="flex size-6 items-center justify-center rounded-md border bg-background"

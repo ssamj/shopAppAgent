@@ -1,6 +1,6 @@
 import { readFileSync, writeFileSync, mkdirSync } from "node:fs";
-const config = JSON.parse(readFileSync(".local/config.json", "utf8"));
-const response = await fetch("http://127.0.0.1:3181/internal/openapi", {
+const config = JSON.parse(readFileSync(process.env.QIHE_CONFIG_PATH || ".local/config.json", "utf8"));
+const response = await fetch(`http://127.0.0.1:${process.env.QIHE_BUSINESS_PORT || 3181}/internal/openapi`, {
   headers: { "x-service-key": config.internalSecret },
 });
 if (!response.ok) throw new Error("Business API contract unavailable");

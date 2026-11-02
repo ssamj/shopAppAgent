@@ -2,11 +2,22 @@ import { Type, type TSchema } from "@sinclair/typebox";
 import type pg from "pg";
 import type { Identity } from "../../shared/security.ts";
 import { sourceSchema, type KnowledgeSource } from "../../shared/knowledge.ts";
+import {
+  replenishmentReportSchema,
+  type ReplenishmentReport,
+} from "../../shared/replenishment.ts";
 export type Cell = string | number | boolean | null;
 export type RowValue = Cell | Record<string, Cell>[];
 export interface Result {
   title: string;
-  view: "products" | "table" | "detail" | "metrics" | "knowledge";
+  view:
+    | "products"
+    | "table"
+    | "detail"
+    | "metrics"
+    | "knowledge"
+    | "replenishment";
+  replenishment?: ReplenishmentReport;
   sources?: KnowledgeSource[];
   knowledge?: {
     indexVersion: string;
@@ -39,6 +50,9 @@ export interface Capability {
   write: boolean;
   input: TSchema;
   evidenceKind?: "knowledge";
+  planRequired?: boolean;
+  completesPlan?: boolean;
+  referenceInputs?: string[];
   prepareRead?: (args: any) => Promise<unknown>;
   execute: (args: any, ctx: Context) => Promise<Result>;
 }
@@ -52,11 +66,17 @@ export const resultSchema = Type.Object(
   {
     title: Type.String(),
     view: Type.Union(
-      ["products", "table", "detail", "metrics", "knowledge"].map((x) =>
-        Type.Literal(x),
-      ),
+      [
+        "products",
+        "table",
+        "detail",
+        "metrics",
+        "knowledge",
+        "replenishment",
+      ].map((x) => Type.Literal(x)),
     ),
     sources: Type.Optional(Type.Array(sourceSchema)),
+    replenishment: Type.Optional(replenishmentReportSchema),
     knowledge: Type.Optional(
       Type.Object(
         {
