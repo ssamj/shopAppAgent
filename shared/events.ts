@@ -1,4 +1,5 @@
 export type ProgressType =
+  | "workflow-updated"
   | "plan-updated"
   | "run-started"
   | "analysis-started"

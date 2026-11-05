@@ -831,6 +831,782 @@
         }
       }
     },
+    "/v1/replenishment/replenishment_recheck": {
+      "post": {
+        "operationId": "replenishment_recheck",
+        "summary": "核对已审核建议的当前依据",
+        "tags": [
+          "replenishment"
+        ],
+        "description": "人工审核后的业务门禁。重新检查已出具补货快照的时效、规则和实时业务变化，成功不代表采购已经创建。",
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "additionalProperties": false,
+                "type": "object",
+                "required": [
+                  "arguments",
+                  "identity",
+                  "mode"
+                ],
+                "properties": {
+                  "arguments": {
+                    "additionalProperties": false,
+                    "type": "object",
+                    "required": [
+                      "snapshotId"
+                    ],
+                    "properties": {
+                      "snapshotId": {
+                        "minLength": 1,
+                        "maxLength": 80,
+                        "type": "string"
+                      }
+                    }
+                  },
+                  "identity": {
+                    "additionalProperties": false,
+                    "type": "object",
+                    "required": [
+                      "id",
+                      "name",
+                      "role",
+                      "customerId"
+                    ],
+                    "properties": {
+                      "id": {
+                        "type": "string"
+                      },
+                      "name": {
+                        "type": "string"
+                      },
+                      "role": {
+                        "anyOf": [
+                          {
+                            "type": "string",
+                            "enum": [
+                              "admin"
+                            ]
+                          },
+                          {
+                            "type": "string",
+                            "enum": [
+                              "customer"
+                            ]
+                          }
+                        ]
+                      },
+                      "customerId": {
+                        "anyOf": [
+                          {
+                            "type": "string"
+                          },
+                          {
+                            "type": "null"
+                          }
+                        ]
+                      }
+                    }
+                  },
+                  "mode": {
+                    "anyOf": [
+                      {
+                        "type": "string",
+                        "enum": [
+                          "read"
+                        ]
+                      },
+                      {
+                        "type": "string",
+                        "enum": [
+                          "preview"
+                        ]
+                      },
+                      {
+                        "type": "string",
+                        "enum": [
+                          "commit"
+                        ]
+                      }
+                    ]
+                  },
+                  "commandId": {
+                    "minLength": 1,
+                    "maxLength": 100,
+                    "type": "string"
+                  },
+                  "expectedPreviewHash": {
+                    "pattern": "^[a-f0-9]{64}$",
+                    "type": "string"
+                  }
+                }
+              }
+            }
+          }
+        },
+        "responses": {
+          "200": {
+            "description": "Default Response",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "additionalProperties": false,
+                  "type": "object",
+                  "required": [
+                    "data",
+                    "requestId"
+                  ],
+                  "properties": {
+                    "data": {
+                      "additionalProperties": false,
+                      "type": "object",
+                      "required": [
+                        "title",
+                        "view",
+                        "columns",
+                        "rows",
+                        "details"
+                      ],
+                      "properties": {
+                        "title": {
+                          "type": "string"
+                        },
+                        "view": {
+                          "anyOf": [
+                            {
+                              "type": "string",
+                              "enum": [
+                                "products"
+                              ]
+                            },
+                            {
+                              "type": "string",
+                              "enum": [
+                                "table"
+                              ]
+                            },
+                            {
+                              "type": "string",
+                              "enum": [
+                                "detail"
+                              ]
+                            },
+                            {
+                              "type": "string",
+                              "enum": [
+                                "metrics"
+                              ]
+                            },
+                            {
+                              "type": "string",
+                              "enum": [
+                                "knowledge"
+                              ]
+                            },
+                            {
+                              "type": "string",
+                              "enum": [
+                                "replenishment"
+                              ]
+                            }
+                          ]
+                        },
+                        "sources": {
+                          "type": "array",
+                          "items": {
+                            "additionalProperties": false,
+                            "type": "object",
+                            "required": [
+                              "id",
+                              "documentId",
+                              "title",
+                              "section",
+                              "version",
+                              "indexVersion",
+                              "productIds",
+                              "scope",
+                              "origin",
+                              "text",
+                              "contentHash"
+                            ],
+                            "properties": {
+                              "id": {
+                                "type": "string"
+                              },
+                              "documentId": {
+                                "type": "string"
+                              },
+                              "title": {
+                                "type": "string"
+                              },
+                              "section": {
+                                "type": "string"
+                              },
+                              "version": {
+                                "type": "string"
+                              },
+                              "indexVersion": {
+                                "type": "string"
+                              },
+                              "productIds": {
+                                "type": "array",
+                                "items": {
+                                  "type": "string"
+                                }
+                              },
+                              "scope": {
+                                "anyOf": [
+                                  {
+                                    "type": "string",
+                                    "enum": [
+                                      "product"
+                                    ]
+                                  },
+                                  {
+                                    "type": "string",
+                                    "enum": [
+                                      "general"
+                                    ]
+                                  }
+                                ]
+                              },
+                              "origin": {
+                                "type": "string",
+                                "enum": [
+                                  "teaching"
+                                ]
+                              },
+                              "text": {
+                                "type": "string"
+                              },
+                              "contentHash": {
+                                "type": "string"
+                              }
+                            }
+                          }
+                        },
+                        "replenishment": {
+                          "additionalProperties": false,
+                          "type": "object",
+                          "required": [
+                            "id",
+                            "state",
+                            "capturedAt",
+                            "checkedAt",
+                            "totalSkus",
+                            "eligibleSkus",
+                            "suggestedSkus",
+                            "units",
+                            "amount",
+                            "rule",
+                            "ruleTitle",
+                            "ruleVersion",
+                            "audit",
+                            "suppliers"
+                          ],
+                          "properties": {
+                            "id": {
+                              "type": "string"
+                            },
+                            "state": {
+                              "anyOf": [
+                                {
+                                  "type": "string",
+                                  "enum": [
+                                    "待审核"
+                                  ]
+                                },
+                                {
+                                  "type": "string",
+                                  "enum": [
+                                    "无需补货"
+                                  ]
+                                }
+                              ]
+                            },
+                            "capturedAt": {
+                              "type": "string"
+                            },
+                            "checkedAt": {
+                              "type": "string"
+                            },
+                            "totalSkus": {
+                              "type": "integer"
+                            },
+                            "eligibleSkus": {
+                              "type": "integer"
+                            },
+                            "suggestedSkus": {
+                              "type": "integer"
+                            },
+                            "units": {
+                              "type": "integer"
+                            },
+                            "amount": {
+                              "type": "integer"
+                            },
+                            "rule": {
+                              "additionalProperties": false,
+                              "type": "object",
+                              "required": [
+                                "eligibleStatus",
+                                "inventoryBasis",
+                                "incomingStatus",
+                                "triggerBelow",
+                                "target",
+                                "output"
+                              ],
+                              "properties": {
+                                "eligibleStatus": {
+                                  "type": "string",
+                                  "enum": [
+                                    "上架"
+                                  ]
+                                },
+                                "inventoryBasis": {
+                                  "type": "string",
+                                  "enum": [
+                                    "availablePlusIncoming"
+                                  ]
+                                },
+                                "incomingStatus": {
+                                  "type": "string",
+                                  "enum": [
+                                    "待到货"
+                                  ]
+                                },
+                                "triggerBelow": {
+                                  "minimum": 1,
+                                  "maximum": 10000,
+                                  "type": "integer"
+                                },
+                                "target": {
+                                  "minimum": 1,
+                                  "maximum": 10000,
+                                  "type": "integer"
+                                },
+                                "output": {
+                                  "type": "string",
+                                  "enum": [
+                                    "reviewOnly"
+                                  ]
+                                }
+                              }
+                            },
+                            "ruleTitle": {
+                              "type": "string"
+                            },
+                            "ruleVersion": {
+                              "type": "string"
+                            },
+                            "audit": {
+                              "type": "array",
+                              "items": {
+                                "additionalProperties": false,
+                                "type": "object",
+                                "required": [
+                                  "skuId",
+                                  "productId",
+                                  "name",
+                                  "color",
+                                  "size",
+                                  "status",
+                                  "supplierId",
+                                  "supplier",
+                                  "stock",
+                                  "reserved",
+                                  "available",
+                                  "incoming",
+                                  "position",
+                                  "cost",
+                                  "quantity",
+                                  "amount",
+                                  "reason"
+                                ],
+                                "properties": {
+                                  "skuId": {
+                                    "type": "string"
+                                  },
+                                  "productId": {
+                                    "type": "string"
+                                  },
+                                  "name": {
+                                    "type": "string"
+                                  },
+                                  "color": {
+                                    "type": "string"
+                                  },
+                                  "size": {
+                                    "type": "string"
+                                  },
+                                  "status": {
+                                    "type": "string"
+                                  },
+                                  "supplierId": {
+                                    "type": "string"
+                                  },
+                                  "supplier": {
+                                    "type": "string"
+                                  },
+                                  "stock": {
+                                    "type": "integer"
+                                  },
+                                  "reserved": {
+                                    "type": "integer"
+                                  },
+                                  "available": {
+                                    "type": "integer"
+                                  },
+                                  "incoming": {
+                                    "type": "integer"
+                                  },
+                                  "position": {
+                                    "type": "integer"
+                                  },
+                                  "cost": {
+                                    "type": "integer"
+                                  },
+                                  "quantity": {
+                                    "type": "integer"
+                                  },
+                                  "amount": {
+                                    "type": "integer"
+                                  },
+                                  "reason": {
+                                    "type": "string"
+                                  }
+                                }
+                              }
+                            },
+                            "suppliers": {
+                              "type": "array",
+                              "items": {
+                                "additionalProperties": false,
+                                "type": "object",
+                                "required": [
+                                  "id",
+                                  "name",
+                                  "units",
+                                  "amount"
+                                ],
+                                "properties": {
+                                  "id": {
+                                    "type": "string"
+                                  },
+                                  "name": {
+                                    "type": "string"
+                                  },
+                                  "units": {
+                                    "type": "integer"
+                                  },
+                                  "amount": {
+                                    "type": "integer"
+                                  }
+                                }
+                              }
+                            }
+                          }
+                        },
+                        "knowledge": {
+                          "additionalProperties": false,
+                          "type": "object",
+                          "required": [
+                            "indexVersion",
+                            "coverage"
+                          ],
+                          "properties": {
+                            "indexVersion": {
+                              "type": "string"
+                            },
+                            "coverage": {
+                              "type": "array",
+                              "items": {
+                                "additionalProperties": false,
+                                "type": "object",
+                                "required": [
+                                  "productId",
+                                  "retrieved"
+                                ],
+                                "properties": {
+                                  "productId": {
+                                    "type": "string"
+                                  },
+                                  "retrieved": {
+                                    "minimum": 0,
+                                    "type": "integer"
+                                  }
+                                }
+                              }
+                            }
+                          }
+                        },
+                        "referenceId": {
+                          "type": "string"
+                        },
+                        "references": {
+                          "type": "array",
+                          "items": {
+                            "additionalProperties": false,
+                            "type": "object",
+                            "required": [
+                              "id",
+                              "kind",
+                              "label"
+                            ],
+                            "properties": {
+                              "id": {
+                                "type": "string"
+                              },
+                              "kind": {
+                                "type": "string"
+                              },
+                              "label": {
+                                "type": "string"
+                              },
+                              "relatedIds": {
+                                "type": "object",
+                                "additionalProperties": {
+                                  "type": "string"
+                                }
+                              }
+                            }
+                          }
+                        },
+                        "summary": {
+                          "type": "string"
+                        },
+                        "columns": {
+                          "type": "array",
+                          "items": {
+                            "additionalProperties": false,
+                            "type": "object",
+                            "required": [
+                              "key",
+                              "label"
+                            ],
+                            "properties": {
+                              "key": {
+                                "type": "string"
+                              },
+                              "label": {
+                                "type": "string"
+                              },
+                              "format": {
+                                "type": "string"
+                              }
+                            }
+                          }
+                        },
+                        "rows": {
+                          "type": "array",
+                          "items": {
+                            "type": "object",
+                            "additionalProperties": {
+                              "anyOf": [
+                                {
+                                  "anyOf": [
+                                    {
+                                      "type": "string"
+                                    },
+                                    {
+                                      "type": "number"
+                                    },
+                                    {
+                                      "type": "boolean"
+                                    },
+                                    {
+                                      "type": "null"
+                                    }
+                                  ]
+                                },
+                                {
+                                  "type": "array",
+                                  "items": {
+                                    "type": "object",
+                                    "additionalProperties": {
+                                      "anyOf": [
+                                        {
+                                          "type": "string"
+                                        },
+                                        {
+                                          "type": "number"
+                                        },
+                                        {
+                                          "type": "boolean"
+                                        },
+                                        {
+                                          "type": "null"
+                                        }
+                                      ]
+                                    }
+                                  }
+                                }
+                              ]
+                            }
+                          }
+                        },
+                        "details": {
+                          "type": "array",
+                          "items": {
+                            "additionalProperties": false,
+                            "type": "object",
+                            "required": [
+                              "label",
+                              "value"
+                            ],
+                            "properties": {
+                              "label": {
+                                "type": "string"
+                              },
+                              "value": {
+                                "anyOf": [
+                                  {
+                                    "type": "string"
+                                  },
+                                  {
+                                    "type": "number"
+                                  },
+                                  {
+                                    "type": "boolean"
+                                  },
+                                  {
+                                    "type": "null"
+                                  }
+                                ]
+                              }
+                            }
+                          }
+                        }
+                      }
+                    },
+                    "requestId": {
+                      "type": "string"
+                    }
+                  }
+                }
+              }
+            }
+          },
+          "400": {
+            "description": "Default Response",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "additionalProperties": false,
+                  "type": "object",
+                  "required": [
+                    "code",
+                    "message"
+                  ],
+                  "properties": {
+                    "code": {
+                      "type": "string"
+                    },
+                    "message": {
+                      "type": "string"
+                    }
+                  }
+                }
+              }
+            }
+          },
+          "401": {
+            "description": "Default Response",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "additionalProperties": false,
+                  "type": "object",
+                  "required": [
+                    "code",
+                    "message"
+                  ],
+                  "properties": {
+                    "code": {
+                      "type": "string"
+                    },
+                    "message": {
+                      "type": "string"
+                    }
+                  }
+                }
+              }
+            }
+          },
+          "403": {
+            "description": "Default Response",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "additionalProperties": false,
+                  "type": "object",
+                  "required": [
+                    "code",
+                    "message"
+                  ],
+                  "properties": {
+                    "code": {
+                      "type": "string"
+                    },
+                    "message": {
+                      "type": "string"
+                    }
+                  }
+                }
+              }
+            }
+          },
+          "409": {
+            "description": "Default Response",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "additionalProperties": false,
+                  "type": "object",
+                  "required": [
+                    "code",
+                    "message"
+                  ],
+                  "properties": {
+                    "code": {
+                      "type": "string"
+                    },
+                    "message": {
+                      "type": "string"
+                    }
+                  }
+                }
+              }
+            }
+          },
+          "500": {
+            "description": "Default Response",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "additionalProperties": false,
+                  "type": "object",
+                  "required": [
+                    "code",
+                    "message"
+                  ],
+                  "properties": {
+                    "code": {
+                      "type": "string"
+                    },
+                    "message": {
+                      "type": "string"
+                    }
+                  }
+                }
+              }
+            }
+          }
+        }
+      }
+    },
     "/v1/replenishment/replenishment_rules_search": {
       "post": {
         "operationId": "replenishment_rules_search",
@@ -20547,6 +21323,11 @@
                       },
                       "note": {
                         "maxLength": 300,
+                        "type": "string"
+                      },
+                      "replenishmentSnapshotId": {
+                        "minLength": 1,
+                        "maxLength": 80,
                         "type": "string"
                       }
                     }

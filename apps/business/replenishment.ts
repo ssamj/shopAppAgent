@@ -238,6 +238,13 @@ async function checked(c: Context, ref: string) {
   );
   return { s, p, calculated };
 }
+export async function validateReplenishmentPurchase(c: Context, ref: string, supplierId: string, items: {skuId: string; quantity: number}[]) {
+  const {s, calculated} = await checked(c, ref);
+  check(s.state === "issued", "INVALID_STATE", "采购依据必须是已生成的补货建议");
+  const rows = calculated.filter(r => r.quantity > 0);
+  const actual = (values: {skuId: string; quantity: number}[]) => JSON.stringify(values.map(x => [x.skuId, x.quantity]).sort((a,b) => String(a[0]).localeCompare(String(b[0]))));
+  check(rows.length && rows.every(r => r.supplierId === supplierId) && actual(rows) === actual(items), "APPROVAL_MISMATCH", "采购明细与补货建议不一致");
+}
 const columns = [
   { key: "name", label: "商品" },
   { key: "color", label: "颜色" },
@@ -258,6 +265,17 @@ const planned = {
   referenceInputs: ["snapshotId"],
 };
 export const replenishmentCapabilities: Capability[] = [
+  {
+    name: "replenishment_recheck", module: "replenishment", label: "核对已审核建议的当前依据",
+    roles: ["admin"], write: false,
+    description: "人工审核后的业务门禁。重新检查已出具补货快照的时效、规则和实时业务变化，成功不代表采购已经创建。",
+    input: object({snapshotId: id}),
+    execute: async (a, c) => {
+      const {s} = await checked(c, a.snapshotId);
+      check(s.state === "issued", "INVALID_STATE", "尚未形成审核建议");
+      return result("审核依据仍有效", [], [], {referenceId: s.id, details: [{label: "核对状态", value: "通过"}]});
+    },
+  },
   {
     ...common,
     name: "replenishment_rules_search",

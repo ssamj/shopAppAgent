@@ -9,6 +9,7 @@ await c.connect();
 try {
   await c.query("BEGIN");
   await c.query(readFileSync("db/schema.sql", "utf8"));
+  await c.query(readFileSync("db/migrations/20261104-workflows.sql", "utf8"));
   await c.query(
     readFileSync("db/migrations/20261101-product-knowledge.sql", "utf8"),
   );

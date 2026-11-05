@@ -31,7 +31,9 @@
     "db:migrate:replenishment": "tsx scripts/migrate-replenishment.ts",
     "replenishment:index": "tsx scripts/index-replenishment.ts",
     "verify:replenishment:unit": "tsx scripts/verify-replenishment-unit.ts",
-    "verify:replenishment:storage": "tsx scripts/verify-replenishment-storage.ts"
+    "verify:replenishment:storage": "tsx scripts/verify-replenishment-storage.ts",
+    "db:migrate:workflows": "tsx scripts/migrate-workflows.ts",
+    "verify:workflows": "tsx scripts/verify-workflows.ts"
   },
   "dependencies": {
     "@fastify/cookie": "^11.0.2",

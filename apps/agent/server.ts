@@ -18,7 +18,10 @@ import { loadMemory, loadReferences } from "./memory.ts";
 import { progress, subscribe, storedEvent } from "./events.ts";
 import type { ProgressEvent } from "../../shared/events.ts";
 import type { ServerResponse } from "node:http";
+import { listWorkflows, signalWorkflow, continueAfterAction, stopAfterAction } from "./workflow-store.ts";
+import { startWorkflowWorker } from "./workflow-runner.ts";
 const pool = database("agent");
+const workflowsEnabled = Boolean(config().workflows?.enabled);
 const app = Fastify({
   logger: false,
   bodyLimit: 131072,
@@ -54,6 +57,10 @@ await pool.query(
 await pool.query(
   "UPDATE agent.actions SET state='revision_failed' WHERE state='revising'",
 );
+if (workflowsEnabled) {
+  await pool.query("UPDATE agent.workflows SET status='failed',error_code='SERVICE_RESTARTED',updated_at=now() WHERE status='running'");
+  await pool.query("UPDATE agent.workflow_jobs SET status='failed',finished_at=now() WHERE status='running'");
+}
 const identities = new WeakMap<object, Identity>();
 const loginAttempts = new Map<string, { count: number; until: number }>();
 const channel = (req: any) =>
@@ -263,6 +270,7 @@ app.get<{ Params: { id: string } }>(
     ]);
     return {
       messages: messages.rows,
+      workflows: workflowsEnabled ? await listWorkflows(pool, req.params.id, who(req).id) : [],
       actions: actions.rows,
       runs: runs.rows,
       calls: calls.rows,
@@ -271,6 +279,16 @@ app.get<{ Params: { id: string } }>(
   },
 );
 const eventStreams = new Map<ServerResponse, string>();
+app.post<{Params: {id: string}; Body: {version: number; decision: "approve" | "cancel"; eventId: string}}>(
+  "/api/workflows/:id/signal",
+  {schema: {params: object({id: idSchema}), body: object({version: Type.Integer({minimum: 1}), decision: Type.Union([Type.Literal("approve"), Type.Literal("cancel")]), eventId: idSchema})}},
+  async req => {
+    if (!workflowsEnabled) throw new BusinessError("FEATURE_DISABLED", "任务编排尚未启用", 404);
+    const task = await signalWorkflow(pool, req.params.id, who(req), req.body);
+    await progress(pool, {conversationId: task.conversation_id, runId: null, type: "workflow-updated", title: "已接收任务决定", detail: req.body.decision === "approve" ? "将读取已保存进度并核对最新业务条件。" : "任务已取消。"});
+    return task;
+  },
+);
 app.addHook("preClose", async () => {
   for (const stream of eventStreams.keys()) stream.end();
 });
@@ -411,6 +429,10 @@ app.post<{ Params: { id: string }; Body: { message: string } }>(
     const runId = randomUUID();
     await transaction(pool, async (db) => {
       await lockConversation(db, conversation.id);
+      if (workflowsEnabled) {
+        const activeTask = await db.query("SELECT 1 FROM agent.workflows WHERE conversation_id=$1 AND status IN ('ready','running') LIMIT 1", [conversation.id]);
+        if (activeTask.rowCount) throw new BusinessError("WORKFLOW_BUSY", "任务正在继续执行，请等待当前节点完成", 409);
+      }
       const committing = await db.query(
         "SELECT 1 FROM agent.actions WHERE conversation_id=$1 AND state IN ('executing','revising') LIMIT 1",
         [conversation.id],
@@ -524,6 +546,10 @@ app.post<{ Params: { id: string } }>(
     ).rows[0];
     if (!action) throw new BusinessError("NOT_FOUND", "操作不存在", 404);
     if (action.state === "completed") return action.result;
+    if (workflowsEnabled) {
+      const linked = (await pool.query("SELECT w.status FROM agent.workflow_runs wr JOIN agent.tool_calls t ON t.run_id=wr.run_id JOIN agent.workflows w ON w.id=wr.workflow_id WHERE t.result->>'actionId'=$1 LIMIT 1", [action.id])).rows[0];
+      if (linked && linked.status !== "waiting_confirmation") throw new BusinessError("WORKFLOW_STATE_CONFLICT", "任务尚未进入有效的采购确认状态，请查看任务进度", 409);
+    }
     if (action.state !== "pending")
       throw new BusinessError(
         "ACTION_UNAVAILABLE",
@@ -576,10 +602,12 @@ app.post<{ Params: { id: string } }>(
         fingerprint(action.preview),
       );
       await transaction(pool, async (db) => {
+        await lockConversation(db, action.conversation_id);
         await db.query(
           "UPDATE agent.actions SET state='completed',result=$1 WHERE id=$2",
           [JSON.stringify(result), action.id],
         );
+        if (workflowsEnabled) await continueAfterAction(db, action.id);
         await db.query(
           "INSERT INTO agent.messages(id,conversation_id,role,content,cards) VALUES($1,$2,'assistant',$3,$4)",
           [
@@ -612,6 +640,7 @@ app.post<{ Params: { id: string } }>(
           : "failed",
         action.id,
       ]);
+      if (workflowsEnabled && error instanceof BusinessError && error.status < 500) await stopAfterAction(pool, action.id, "failed");
       await publishAction(
         action,
         "action-failed",
@@ -638,6 +667,7 @@ app.post<{ Params: { id: string } }>(
         "操作已提交或无法取消",
         409,
       );
+    if (workflowsEnabled) await stopAfterAction(pool, req.params.id, "cancelled");
     await publishAction(
       r.rows[0],
       "action-cancelled",
@@ -702,8 +732,10 @@ const address = await app.listen({
   port: Number(process.env.QIHE_AGENT_PORT || 3180),
 });
 console.log(`Agent ready: ${address}`);
+const workflowWorker = workflowsEnabled ? startWorkflowWorker(pool) : undefined;
 for (const signal of ["SIGINT", "SIGTERM"] as const)
   process.on(signal, async () => {
+    await workflowWorker?.stop();
     await app.close();
     await pool.end();
     process.exit(0);

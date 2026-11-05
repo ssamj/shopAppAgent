@@ -2,7 +2,7 @@ import { Type } from "@sinclair/typebox";
 import { randomUUID } from "node:crypto";
 import { config } from "../../shared/config.ts";
 import { knowledgeCapability } from "./knowledge/search.ts";
-import { replenishmentCapabilities } from "./replenishment.ts";
+import { replenishmentCapabilities, validateReplenishmentPurchase } from "./replenishment.ts";
 import { requireCondition as check } from "../../shared/db.ts";
 import {
   type Capability,
@@ -959,6 +959,7 @@ add(
     supplierId: id,
     items: itemInput,
     note: Type.Optional(Type.String({ maxLength: 300 })),
+    replenishmentSnapshotId: Type.Optional(id),
   }),
   async (a, c) => {
     const supplier = (
@@ -971,6 +972,10 @@ add(
       "SUPPLIER_MISMATCH",
       "所选商品不属于同一供应商，请分开采购",
     );
+    if (a.replenishmentSnapshotId) {
+      check(config().replenishment?.enabled, "FEATURE_DISABLED", "补货功能未启用");
+      await validateReplenishmentPurchase(c, a.replenishmentSnapshotId, a.supplierId, a.items);
+    }
     const total = items.reduce((n, s) => n + s.cost * s.quantity, 0);
     const purchaseId = newId("CG");
     if (!c.preview) {

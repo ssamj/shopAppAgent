@@ -24,8 +24,10 @@ export interface Decision {
 export async function decide(
   messages: { role: string; content: string }[],
   onSummary?: (summary: string, streaming: boolean) => Promise<void>,
+  responseFormat?: Record<string, unknown>,
+  stream = true,
 ): Promise<Decision> {
-  const { content, finishReason } = await requestContent(messages, onSummary);
+  const { content, finishReason } = await requestContent(messages, onSummary, responseFormat, stream);
   const decision = parseDecision(content, finishReason);
   if (onSummary && decision.analysisSummary)
     await onSummary(decision.analysisSummary, false);
@@ -57,6 +59,8 @@ export async function generateJson(
 async function requestContent(
   messages: { role: string; content: string }[],
   onSummary?: (summary: string, streaming: boolean) => Promise<void>,
+  responseFormat?: Record<string, unknown>,
+  stream = true,
 ) {
   const model = config().model;
   const response = await fetch(
@@ -72,10 +76,10 @@ async function requestContent(
         messages,
         temperature: 0.25,
         max_tokens: 4096,
-        response_format: { type: "json_object" },
+        response_format: responseFormat || { type: "json_object" },
         enable_thinking: false,
         thinking: { type: "disabled" },
-        stream: true,
+        stream,
       }),
       signal: AbortSignal.timeout(90000),
     },
@@ -99,6 +103,11 @@ async function requestContent(
       `智能助手暂时不可用（${response.status}）`,
       502,
     );
+  if (!stream) {
+    const body = await response.json().catch(() => { throw new BusinessError("MODEL_RESULT_INVALID", "模型未返回有效JSON响应", 502); }) as any;
+    if (!body.choices?.[0]?.finish_reason) throw new BusinessError("MODEL_STREAM_INTERRUPTED", "模型响应未完整结束", 502);
+    return {content: body.choices?.[0]?.message?.content, finishReason: body.choices?.[0]?.finish_reason as string | undefined};
+  }
   if (
     !response.body ||
     !response.headers.get("content-type")?.includes("text/event-stream")

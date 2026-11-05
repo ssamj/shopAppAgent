@@ -53,6 +53,7 @@ import ResultCard from "@/components/ResultCard.vue";
 import SourcedAnswer from "@/components/SourcedAnswer.vue";
 import ExecutionTrace from "@/components/ExecutionTrace.vue";
 import ThinkingIndicator from "@/components/ThinkingIndicator.vue";
+import WorkflowCard from "@/components/WorkflowCard.vue";
 import { streamProgress, type ProgressEvent } from "@/lib/events";
 import { api, currency, time, type BusinessCard } from "@/lib/api";
 const props = defineProps<{ channel: "admin" | "shop" }>();
@@ -67,6 +68,7 @@ const conversations = ref<any[]>([]),
   actions = ref<any[]>([]),
   calls = ref<any[]>([]),
   runs = ref<any[]>([]);
+const workflows = ref<any[]>([]);
 const draft = ref(""),
   busy = ref(false),
   operationBusy = ref(false),
@@ -188,6 +190,7 @@ function connectProgress(id: string) {
             "action-completed",
             "action-failed",
             "action-cancelled",
+            "workflow-updated",
           ].includes(event.type)
         ) {
           clearTimeout(snapshotTimer);
@@ -382,6 +385,7 @@ function resetConversation() {
   actions.value = [];
   calls.value = [];
   runs.value = [];
+  workflows.value = [];
   busy.value = false;
   draft.value = "";
   shopSection.value = "products_search";
@@ -421,11 +425,12 @@ async function refresh(id = conversationId.value, token = scope) {
   actions.value = snapshot.actions;
   calls.value = snapshot.calls;
   runs.value = snapshot.runs;
+  workflows.value = snapshot.workflows || [];
   mergeProgress(snapshot.events || []);
   busy.value =
     submitting.value || runs.value.some((r) => r.status === "running");
   if (before !== messages.value.length) await scrollDown();
-  if (actions.value.some((a) => a.state === "executing"))
+  if (actions.value.some((a) => a.state === "executing") || workflows.value.some(w => ['ready','running'].includes(w.status)))
     poll = setTimeout(
       () =>
         refresh(id, token).catch((e) => {
@@ -619,6 +624,13 @@ async function submitForm() {
   } finally {
     operationBusy.value = false;
   }
+}
+async function signalTask(id: string, version: number, decision: "approve" | "cancel", eventId: string) {
+  operationBusy.value = true;
+  error.value = "";
+  try { await api(props.channel, `/workflows/${id}/signal`, {version, decision, eventId}); await refresh(); }
+  catch (e) { fail(e); }
+  finally { operationBusy.value = false; }
 }
 async function confirmAction(id: string, cancel = false) {
   operationBusy.value = true;
@@ -1228,6 +1240,7 @@ onUnmounted(() => {
                       /></div
                   ></template>
                 </article>
+                <WorkflowCard v-for="task in workflows" :key="task.id" :task="task" :disabled="busy || operationBusy" @signal="signalTask" />
                 <template v-if="waitingForReply">
                   <ThinkingIndicator v-if="isShop" />
                   <ExecutionTrace

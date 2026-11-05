@@ -3,6 +3,7 @@ import type pg from "pg";
 import { BusinessError, transaction } from "../../shared/db.ts";
 import type { Identity } from "../../shared/security.ts";
 import { findCapability, invoke } from "./business.ts";
+import { config } from "../../shared/config.ts";
 
 export interface DraftRevision {
   actionId: string;
@@ -41,6 +42,10 @@ export async function prepare(
         )
       ).rows[0];
       if (!row) throw new BusinessError("NOT_FOUND", "待修改的草稿不存在", 404);
+      if (config().workflows?.enabled) {
+        const linked = await db.query("SELECT 1 FROM agent.workflows WHERE data->>'actionId'=$1 AND status NOT IN ('completed','cancelled','failed')", [row.id]);
+        if (linked.rowCount) throw new BusinessError("WORKFLOW_REVIEW_REQUIRED", "此草稿绑定已审核建议。需要调整时，请先取消任务并重新提出需求");
+      }
       if (row.capability !== name || row.revision !== revision.version)
         throw new BusinessError(
           "DRAFT_VERSION_CONFLICT",
