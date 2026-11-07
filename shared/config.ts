@@ -25,7 +25,7 @@ export interface LocalConfig {
   model: { baseUrl: string; model: string; apiKey: string };
   knowledge?: { enabled: boolean };
   replenishment?: { enabled: boolean };
-  workflows?: { enabled: boolean; strictJsonSchema?: boolean };
+  workflows?: { enabled: boolean; strictJsonSchema?: boolean; engine?: "self" | "langgraph" };
   internalSecret: string;
 }
 export function config(): LocalConfig {

@@ -7,6 +7,7 @@ await db.connect();
 try {
   await db.query("BEGIN");
   await db.query(readFileSync("db/migrations/20261104-workflows.sql", "utf8"));
+  await db.query(readFileSync("db/migrations/20261107-langgraph.sql", "utf8"));
   for (const table of ["workflows", "workflow_jobs", "workflow_events", "workflow_runs"])
     await db.query(`GRANT SELECT,INSERT,UPDATE ON agent.${table} TO ${quote(cfg.agentDatabase.user)}`);
   await db.query(`GRANT USAGE,SELECT ON SEQUENCE agent.workflow_events_id_seq TO ${quote(cfg.agentDatabase.user)}`);

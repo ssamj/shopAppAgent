@@ -9,7 +9,7 @@ import {decide} from "../apps/agent/model.ts";
 import {localWorkflowTools} from "../apps/agent/workflow-tools.ts";
 import { approvedPurchase, assertApprovedArguments } from "../apps/agent/workflows/replenishment.ts";
 const cfg = config();
-assert.ok(cfg.database.database.includes("episode07") && process.env.QIHE_ALLOW_WRITE_TESTS === "1", "Explicit isolated episode07 configuration required");
+assert.ok(["qihe_episode07_", "qihe_episode09_"].some(prefix => cfg.database.database.startsWith(prefix)) && process.env.QIHE_ALLOW_WRITE_TESTS === "1", "Explicit isolated teaching configuration required");
 const pool = database("agent"), checks: string[] = [], taskIds: string[] = [];
 const identity = {id: "U001", name: "隔离测试店长", role: "admin" as const, customerId: null};
 const check = async (name: string, action: () => any) => { await action(); checks.push(name); };

@@ -4,6 +4,7 @@ import { transaction, requireCondition as check } from "../../shared/db.ts";
 import type { Identity } from "../../shared/security.ts";
 import type { Workflow } from "../../shared/workflows.ts";
 import { lockConversation } from "./actions.ts";
+import { config } from "../../shared/config.ts";
 
 export async function workflowEvent(db: pg.PoolClient, task: Workflow, kind: string, detail: unknown = {}, key?: string) {
   await db.query("INSERT INTO agent.workflow_events(workflow_id,version,kind,detail,dedupe_key) VALUES($1,$2,$3,$4,$5)",
@@ -18,8 +19,10 @@ export async function createWorkflow(pool: pg.Pool, conversationId: string, iden
     await lockConversation(db, conversationId);
     const owned = await db.query("SELECT 1 FROM agent.conversations WHERE id=$1 AND account_id=$2", [conversationId, identity.id]);
     check(owned.rowCount && identity.role === "admin", "NOT_FOUND", "任务入口不存在");
-    const task = (await db.query("INSERT INTO agent.workflows(id,conversation_id,account_id,name,goal,node,status) VALUES($1,$2,$3,$4,$5,'analyze','ready') RETURNING *",
-      [randomUUID(), conversationId, identity.id, name, goal])).rows[0] as Workflow;
+    const engine = config().workflows?.engine || "self";
+    check(engine === "self" || engine === "langgraph", "WORKFLOW_ENGINE_INVALID", "任务引擎配置不合法");
+    const task = (await db.query("INSERT INTO agent.workflows(id,conversation_id,account_id,name,goal,node,status,engine) VALUES($1,$2,$3,$4,$5,'analyze','ready',$6) RETURNING *",
+      [randomUUID(), conversationId, identity.id, name, goal, engine])).rows[0] as Workflow;
     await workflowEvent(db, task, "created", { goal });
     await enqueue(db, task);
     return task;

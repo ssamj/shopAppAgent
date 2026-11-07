@@ -1,12 +1,10 @@
-import { randomUUID } from "node:crypto";
 import type pg from "pg";
 import { BusinessError, transaction, requireCondition as check } from "../../shared/db.ts";
 import type { Identity } from "../../shared/security.ts";
 import type { Workflow } from "../../shared/workflows.ts";
-import { config } from "../../shared/config.ts";
 import { progress } from "./events.ts";
 import { workflowEvent, enqueue } from "./workflow-store.ts";
-import { run, type RunScope } from "./runtime.ts";
+import { workflowExecution } from "./workflow-execution.ts";
 import { replenishmentNodes } from "./workflows/replenishment.ts";
 
 
@@ -19,7 +17,7 @@ export function startWorkflowWorker(pool: pg.Pool) {
     try {
       const claimed = await transaction(pool, async db => {
         const row = (await db.query(`SELECT j.id AS job_id,w.* FROM agent.workflow_jobs j JOIN agent.workflows w ON w.id=j.workflow_id
-          WHERE j.status='pending' AND w.status='ready' AND j.version=w.version
+          WHERE j.status='pending' AND w.status='ready' AND w.engine='self' AND j.version=w.version
           AND NOT EXISTS(SELECT 1 FROM agent.runs r WHERE r.conversation_id=w.conversation_id AND r.status='running')
           ORDER BY j.created_at LIMIT 1 FOR UPDATE OF j,w SKIP LOCKED`)).rows[0];
         if (!row) return;
@@ -37,22 +35,7 @@ export function startWorkflowWorker(pool: pg.Pool) {
         check(identity?.role === "admin", "FORBIDDEN", "该账号不能继续此任务");
         const handler = handlers.get(task.name)?.[task.node];
         check(handler, "WORKFLOW_NODE_INVALID", "没有注册此执行节点");
-        const execute = async (scope: RunScope) => {
-          const prompt = (await pool.query("SELECT content,version FROM agent.prompts WHERE role=$1", [identity.role])).rows[0];
-          const runId = randomUUID();
-          await transaction(pool, async db => {
-            await db.query("INSERT INTO agent.runs(id,conversation_id,status,prompt_version,model) VALUES($1,$2,'running',$3,$4)", [runId, task.conversation_id, prompt.version, config().model.model]);
-            await db.query("INSERT INTO agent.workflow_runs(run_id,workflow_id,node) VALUES($1,$2,$3)", [runId, task.id, task.node]);
-          });
-          await run(pool, runId, task.conversation_id, identity, prompt, {...scope, recordDecision: async decision => {
-            await pool.query("UPDATE agent.workflow_runs SET decisions=decisions || $2::jsonb WHERE run_id=$1", [runId, JSON.stringify([decision])]);
-          }});
-          const state = (await pool.query("SELECT status,error_code FROM agent.runs WHERE id=$1", [runId])).rows[0];
-          check(state.status === "succeeded", state.error_code || "WORKFLOW_RUN_FAILED", "节点执行失败，请查看实际调用记录");
-          const message = (await pool.query("SELECT cards FROM agent.messages WHERE run_id=$1 AND role='assistant' ORDER BY created_at DESC LIMIT 1", [runId])).rows[0];
-          const action = (await pool.query("SELECT result FROM agent.tool_calls WHERE run_id=$1 AND status='awaiting_confirmation'", [runId])).rows[0];
-          return {cards: message?.cards || [], actionId: action?.result?.actionId};
-        };
+        const execute = workflowExecution(pool, task, identity);
         const result = await handler(task, identity, execute);
         await transaction(pool, async db => {
           const updated = await db.query("UPDATE agent.workflows SET status=$2,node=$3,data=$4,version=version+1,updated_at=now() WHERE id=$1 AND version=$5 AND status='running' RETURNING *", [task.id, result.status, result.node || task.node, JSON.stringify(result.data), task.version]);

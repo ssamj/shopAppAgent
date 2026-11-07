@@ -33,13 +33,19 @@
     "verify:replenishment:unit": "tsx scripts/verify-replenishment-unit.ts",
     "verify:replenishment:storage": "tsx scripts/verify-replenishment-storage.ts",
     "db:migrate:workflows": "tsx scripts/migrate-workflows.ts",
-    "verify:workflows": "tsx scripts/verify-workflows.ts"
+    "verify:workflows": "tsx scripts/verify-workflows.ts",
+    "db:migrate:langgraph": "tsx scripts/migrate-langgraph.ts",
+    "verify:langgraph:unit": "tsx scripts/verify-langgraph-unit.ts",
+    "verify:langgraph:storage": "tsx scripts/verify-langgraph-storage.ts"
   },
   "dependencies": {
     "@fastify/cookie": "^11.0.2",
     "@fastify/static": "^8.3.0",
     "@fastify/swagger": "9.8.1",
     "@huggingface/transformers": "3.8.1",
+    "@langchain/core": "1.3.5",
+    "@langchain/langgraph": "1.7.2",
+    "@langchain/langgraph-checkpoint-postgres": "1.1.2",
     "@sinclair/typebox": "0.34.52",
     "@vueuse/core": "^14.4.0",
     "class-variance-authority": "^0.7.1",

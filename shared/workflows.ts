@@ -7,6 +7,7 @@ export const workflowLabels: Record<string, string> = {
 export interface Workflow {
   id: string; conversation_id: string; account_id: string; name: string; goal: string;
   node: string; status: string; version: number; error_code?: string;
+  engine?: "self" | "langgraph";
   data: Record<string, any>; created_at: string; updated_at: string;
   events?: { id: string; kind: string; version: number; detail: any; created_at: string }[];
   runs?: { run_id: string; node: string; status: string }[];

@@ -20,8 +20,11 @@ import type { ProgressEvent } from "../../shared/events.ts";
 import type { ServerResponse } from "node:http";
 import { listWorkflows, signalWorkflow, continueAfterAction, stopAfterAction } from "./workflow-store.ts";
 import { startWorkflowWorker } from "./workflow-runner.ts";
+import { startLangGraphWorker } from "./langgraph-runner.ts";
 const pool = database("agent");
 const workflowsEnabled = Boolean(config().workflows?.enabled);
+const workflowEngine = config().workflows?.engine || "self";
+if (!["self", "langgraph"].includes(workflowEngine)) throw new Error("WORKFLOW_ENGINE_INVALID");
 const app = Fastify({
   logger: false,
   bodyLimit: 131072,
@@ -732,7 +735,7 @@ const address = await app.listen({
   port: Number(process.env.QIHE_AGENT_PORT || 3180),
 });
 console.log(`Agent ready: ${address}`);
-const workflowWorker = workflowsEnabled ? startWorkflowWorker(pool) : undefined;
+const workflowWorker = workflowsEnabled ? (workflowEngine === "langgraph" ? startLangGraphWorker(pool) : startWorkflowWorker(pool)) : undefined;
 for (const signal of ["SIGINT", "SIGTERM"] as const)
   process.on(signal, async () => {
     await workflowWorker?.stop();

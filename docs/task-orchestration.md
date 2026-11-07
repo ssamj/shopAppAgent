@@ -1,5 +1,31 @@
 # 小型任务编排
 
+## 两种执行方式
+
+同一补货采购任务可使用自研运行器或 LangGraph。模型调用、补货规则与查询、采购确认、版本和幂等检查共用；差别在流程怎样组织、保存和继续。自研通过任务节点及数据库待办推进；LangGraph 通过显式的图节点、连线、人工中断和 PostgreSQL 检查点推进。
+
+LangGraph 使用 `@langchain/langgraph`、`@langchain/core` 和 PostgreSQL 检查点适配包。已有项目先运行 `npm run db:migrate:workflows`，再运行 `npm run db:migrate:langgraph` 初始化独立的 `agent_graph` 检查点 schema，然后在本地配置中选择：
+
+```json
+{"workflows":{"enabled":true,"strictJsonSchema":true,"engine":"langgraph"}}
+```
+
+`engine` 省略或为 `self` 时使用自研运行器。每项任务在创建时固定执行方式，已有任务保留原值。当前服务只调度配置选定的执行方式；切换前应先处理完原方式的活跃任务。迁移只增加字段及检查点表，不改原业务资料或用户编排提示词。自研与框架对照应使用分别隔离的数据库和端口。
+
+`langgraph-workflow.ts` 定义分析、建议审核、采购准备、采购确认和查单五个图节点。审核与确认节点只接收外部结果，没有业务写入。`langgraph-runner.ts` 把经过身份、版本和去重检查的事件送入相应图任务，核对本次报告或已完成 action，再允许图继续。原待办表在框架方式下只投递任务开始和两类外部事件，业务节点之间的流转由图的边及条件分支完成。
+
+图节点复用 `workflows/replenishment.ts` 和 `workflow-execution.ts`，没有把原自研运行器整体放入一个图节点。业务条件变化时，准备节点返回重新分析分支，再生成报告并等待新审核；错误格式、执行失败或结果不合法时明确失败，不自动重试。
+
+框架等待点持久保存在 PostgreSQL；调用等待完成检查点落盘以后才确认相应待办。任务采用会话内串行执行，图任务有数据库锁防止同一检查点同时恢复。业务节点与应用任务投影、图检查点仍属于不同的持久化步骤，不能保证跨系统原子提交；运行途中进程退出仍显式失败，不能声称任意位置自动续跑。检查点缺失或与外部事件不匹配时停止，不能重新创建图任务或重做采购来掩盖问题。
+
+取消由应用任务和 action 状态控制，取消后拒绝新审核与调度；框架保留最后的检查点供核对，不再恢复该任务。LangGraph 的 `interrupt()` 恢复会重新进入所在节点，写操作仍必须使用业务确认与幂等保护。采用图并不改变采购单实际创建、待到货或未付款的业务含义。
+
+框架路由检查：`npm run verify:langgraph:unit`；真实 PostgreSQL 检查点检查：`npm run verify:langgraph:storage`。后者要求显式指向独立 `qihe_episode09_` 测试库并设置 `QIHE_ALLOW_WRITE_TESTS=1`；两类脚本都明确使用节点效果夹具，不冒充真实模型或实际采购验证。
+
+自研适合希望掌握运行细节、明确业务边界且有能力维护执行机制的团队；框架可用于需要统一组织状态、分支和人工等待的任务。两者都能扩展；选择需考虑团队经验、现有系统、调试与升级成本。框架减少多少应用代码、是否改善开发效率或可靠性，应在同等业务要求下实测，不能仅用依赖包或代码行数判断。
+
+参考：[LangGraph Graph API](https://docs.langchain.com/oss/javascript/langgraph/graph-api)、[人工中断](https://docs.langchain.com/oss/javascript/langgraph/interrupts)、[持久化](https://docs.langchain.com/oss/javascript/langgraph/persistence)。
+
 可选的补货采购任务把只读补货分析、建议审核、采购草稿确认和实际单据查询连接为一项持久任务。模型依据用户需求选择注册的工作流和节点工具；执行程序管理任务状态、节点依赖、人工等待和调度。当前只支持管理员、单供应商、最多20项需补规格的串行流程。
 
 已有项目保持配置和数据，执行 `npm run db:migrate:workflows`，在自己的本地配置中添加 `"workflows": { "enabled": true }` 后重启智能体服务。还需按[智能补货说明](smart-replenishment.md)启用补货、迁移规则和准备索引。默认不启用任务编排，不覆盖已有业务编排提示词。
